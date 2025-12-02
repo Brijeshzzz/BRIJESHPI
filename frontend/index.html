@@ -215,12 +215,7 @@
         .group:hover .project-overlay { opacity: 1; }
 
         /* --- 3D ANIMATION CONTAINERS --- */
-        #security-3d-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-        #hero-3d-canvas {
+        #security-3d-canvas, #hero-3d-canvas, #story-3d-canvas, #clarity-3d-canvas {
             width: 100%;
             height: 100%;
             display: block;
@@ -329,9 +324,11 @@
             </div>
         </div>
 
-        <!-- SECTION 2: THE STORY (Dark Mode Contrast) -->
+        <!-- SECTION 2: THE STORY (UPDATED WITH 3D WAVE ANIMATION) -->
         <section class="py-32 relative z-20 dark-section">
-            <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 50px 50px;"></div>
+            
+            <!-- 3D Animation Background for Story -->
+            <div id="story-3d-canvas" class="absolute inset-0 pointer-events-none z-0 opacity-25"></div>
             
             <div class="max-w-5xl mx-auto px-6 relative z-10">
                 <div class="grid md:grid-cols-2 gap-16 items-center">
@@ -380,17 +377,22 @@
                         </div>
                     </div>
 
-                    <!-- Item 2: Tall Box (Clarity) -->
-                    <div class="bento-card md:row-span-2 bg-black text-white border-black" data-aos="fade-up" data-aos-delay="100">
-                        <i class="fa-regular fa-eye bento-icon-bg text-gray-800 opacity-20"></i>
-                        <div class="mb-8">
-                            <span class="text-4xl font-serif text-gray-600">02</span>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl mb-3 font-serif text-white">Visual Clarity</h3>
-                            <p class="text-gray-400 font-light leading-relaxed">
-                                Design and communication stay clean, simple, and powerful. No clutter. No confusion. Just impact.
-                            </p>
+                    <!-- Item 2: Tall Box (Clarity) UPDATED WITH 3D -->
+                    <div class="bento-card md:row-span-2 bg-black text-white border-black relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                        
+                        <!-- 3D Canvas for Visual Clarity -->
+                        <div id="clarity-3d-canvas" class="absolute inset-0 z-0 opacity-40"></div>
+
+                        <div class="relative z-10 flex flex-col justify-between h-full">
+                            <div class="mb-8">
+                                <span class="text-4xl font-serif text-gray-600">02</span>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl mb-3 font-serif text-white">Visual Clarity</h3>
+                                <p class="text-gray-400 font-light leading-relaxed">
+                                    Design and communication stay clean, simple, and powerful. No clutter. No confusion. Just impact.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -739,9 +741,6 @@
             const pointCloud = new THREE.Points(particlesGeometry, particlesMaterial);
             scene.add(pointCloud);
 
-            // Add some connecting lines for "Network" feel (Optional, can be heavy, sticking to points for performance)
-            // Just the cloud is elegant.
-
             function animateHero() {
                 requestAnimationFrame(animateHero);
                 // Rotate entire system
@@ -763,15 +762,162 @@
             });
         }
 
+        // --- THREE.JS STORY ANIMATION (DATA WAVE) ---
+        function initStory3D() {
+            const container = document.getElementById('story-3d-canvas');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            // Fog matches the dark background color #0a0a0a
+            scene.fog = new THREE.FogExp2(0x0a0a0a, 0.02);
+
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+            camera.position.y = 2;
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create a grid of particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const count = 1000;
+            const positions = new Float32Array(count * 3);
+            const originalY = new Float32Array(count); // Store original Y for wave calc
+
+            const separation = 0.5;
+            const gridWidth = 40; // particles per row approx
+            
+            let i = 0;
+            for (let x = 0; x < gridWidth; x++) {
+                for (let z = 0; z < gridWidth; z++) {
+                    if (i >= count) break;
+                    
+                    const pX = (x - gridWidth / 2) * separation;
+                    const pZ = (z - gridWidth / 2) * separation;
+                    const pY = 0;
+
+                    positions[i * 3] = pX;
+                    positions[i * 3 + 1] = pY;
+                    positions[i * 3 + 2] = pZ;
+                    
+                    originalY[i] = pY;
+                    i++;
+                }
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x444444, // Dark grey for subtlety
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particleSystem);
+
+            function animateStory() {
+                requestAnimationFrame(animateStory);
+
+                const positions = particleSystem.geometry.attributes.position.array;
+                const time = Date.now() * 0.001;
+
+                for (let i = 0; i < count; i++) {
+                    const x = positions[i * 3];
+                    const z = positions[i * 3 + 2];
+                    
+                    // Wave formula
+                    const y = Math.sin(x * 0.5 + time) * 0.5 + Math.sin(z * 0.5 + time) * 0.5;
+                    
+                    positions[i * 3 + 1] = y;
+                }
+                
+                particleSystem.geometry.attributes.position.needsUpdate = true;
+                
+                // Slow rotation
+                particleSystem.rotation.y += 0.001;
+
+                renderer.render(scene, camera);
+            }
+            animateStory();
+
+            window.addEventListener('resize', () => {
+                if (container) {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                }
+            });
+        }
+
+        // --- THREE.JS CLARITY ANIMATION (FOCUS LENS - BLACK CARD) ---
+        function initClarity3D() {
+            const container = document.getElementById('clarity-3d-canvas');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            // Background is technically black via CSS, but let's be explicit if needed or rely on transparency
+            
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 3;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create a complex wireframe geometry - TorusKnot
+            const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xFFFFFF, 
+                wireframe: true,
+                transparent: true,
+                opacity: 0.15 
+            });
+            
+            const torusKnot = new THREE.Mesh(geometry, material);
+            scene.add(torusKnot);
+
+            function animateClarity() {
+                requestAnimationFrame(animateClarity);
+                
+                torusKnot.rotation.x += 0.003;
+                torusKnot.rotation.y += 0.005;
+                
+                renderer.render(scene, camera);
+            }
+            animateClarity();
+
+            window.addEventListener('resize', () => {
+                if (container) {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                }
+            });
+        }
+
         // Initialize all animations
         document.addEventListener('DOMContentLoaded', () => {
             initSecurity3D();
             initHero3D();
+            initStory3D();
+            initClarity3D();
         });
         // Fallback call
         setTimeout(() => {
             if (!document.getElementById('security-3d-canvas').children.length) initSecurity3D();
             if (!document.getElementById('hero-3d-canvas').children.length) initHero3D();
+            if (!document.getElementById('story-3d-canvas').children.length) initStory3D();
+            if (!document.getElementById('clarity-3d-canvas').children.length) initClarity3D();
         }, 500);
 
     </script>
