@@ -15,11 +15,38 @@
             --brand-gold: #D4AF37;
         }
 
+        /* --- CRITICAL LAYOUT FIX: FIXED VIEWPORT --- */
+        html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Lock scroll bars */
+        }
+        
         body {
             font-family: 'Sora', sans-serif;
             background-color: #ffffff;
             color: var(--brand-black);
-            overflow: hidden; /* Prevent scrolling on login page */
+            
+            /* Rigid Centering */
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0;
+            padding: 0;
+
+            /* Anti-FOUC: Smoothly reveal page only when layout is ready */
+            animation: page-reveal 0.5s ease-out forwards;
+            opacity: 0; 
+        }
+
+        @keyframes page-reveal {
+            to { opacity: 1; }
         }
 
         .serif-font {
@@ -31,77 +58,23 @@
             position: absolute;
             background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
             border-radius: 50%;
-            filter: blur(80px); /* Increased blur for smoother look */
+            filter: blur(80px);
             opacity: 0.6;
-            z-index: 0;
-            will-change: transform; /* Optimize for performance */
+            z-index: -1;
+            will-change: transform;
             animation: liquid-morph 15s ease-in-out infinite;
         }
 
-        .liquid:nth-child(1) {
-            top: -20%;
-            left: -15%;
-            width: 700px;
-            height: 700px;
-            background: #f0f0f0;
-            animation-delay: 0s;
-        }
-
-        .liquid:nth-child(2) {
-            bottom: -20%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: #e8e8e8;
-            animation-delay: -5s;
-            animation-direction: reverse;
-        }
-
-        .liquid:nth-child(3) {
-            top: 30%;
-            left: 40%;
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, #ffffff, #f3f4f6);
-            filter: blur(50px);
-            opacity: 0.5;
-            animation-duration: 20s;
-        }
-
-        /* Added Extra Liquids for "More" Effect */
-        .liquid:nth-child(4) {
-            bottom: 10%;
-            left: 5%;
-            width: 300px;
-            height: 300px;
-            background: #f3f4f6;
-            opacity: 0.5;
-            animation: liquid-morph 18s ease-in-out infinite reverse;
-        }
-
-        .liquid:nth-child(5) {
-            top: 10%;
-            right: 20%;
-            width: 200px;
-            height: 200px;
-            background: #e5e7eb;
-            opacity: 0.4;
-            animation: liquid-morph 10s ease-in-out infinite;
-        }
+        .liquid:nth-child(1) { top: -20%; left: -15%; width: 700px; height: 700px; background: #f0f0f0; animation-delay: 0s; }
+        .liquid:nth-child(2) { bottom: -20%; right: -10%; width: 600px; height: 600px; background: #e8e8e8; animation-delay: -5s; animation-direction: reverse; }
+        .liquid:nth-child(3) { top: 30%; left: 40%; width: 400px; height: 400px; background: linear-gradient(135deg, #ffffff, #f3f4f6); filter: blur(50px); opacity: 0.5; animation-duration: 20s; }
+        .liquid:nth-child(4) { bottom: 10%; left: 5%; width: 300px; height: 300px; background: #f3f4f6; opacity: 0.5; animation: liquid-morph 18s ease-in-out infinite reverse; }
+        .liquid:nth-child(5) { top: 10%; right: 20%; width: 200px; height: 200px; background: #e5e7eb; opacity: 0.4; animation: liquid-morph 10s ease-in-out infinite; }
 
         @keyframes liquid-morph {
-            0% {
-                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-                transform: translate(0, 0) rotate(0deg);
-            }
-            50% {
-                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-                transform: translate(30px, -30px) rotate(15deg);
-            }
-            100% {
-                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-                transform: translate(0, 0) rotate(0deg);
-            }
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -30px) rotate(15deg); }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
         }
 
         /* --- GLASS CARD --- */
@@ -113,8 +86,6 @@
             box-shadow: 
                 0 30px 60px -15px rgba(0, 0, 0, 0.08),
                 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-            transform: none !important; /* Force disable any JS transforms/shaking */
-            transition: none !important;
         }
 
         /* --- INPUT FIELDS --- */
@@ -143,7 +114,7 @@
         .minimal-input::placeholder {
             color: #9ca3af;
             font-weight: 300;
-            opacity: 0; /* Hidden placeholder for floating label effect */
+            opacity: 0;
         }
 
         .floating-label {
@@ -208,7 +179,7 @@
             width: 80px;
             height: 40px;
             z-index: 5;
-            opacity: 0.3; /* Subtle styling */
+            opacity: 0.3;
         }
 
         .bpi-svg {
@@ -237,9 +208,9 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen relative">
+<body>
 
-    <!-- More Liquid Background Animation -->
+    <!-- Liquid Backgrounds -->
     <div class="liquid"></div>
     <div class="liquid"></div>
     <div class="liquid"></div>
@@ -249,7 +220,7 @@
     <!-- Login Container -->
     <div class="relative z-10 w-full max-w-md px-6">
         
-        <!-- Login Card (Static, No Shake) -->
+        <!-- Login Card -->
         <div class="glass-card rounded-[32px] p-10 md:p-12">
             
             <!-- Header -->
@@ -264,13 +235,13 @@
             <!-- Form -->
             <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='index.html'">
                 
-                <!-- Email Input -->
+                <!-- Email -->
                 <div class="input-group">
                     <input type="email" id="email" class="minimal-input" placeholder=" " required>
                     <label for="email" class="floating-label">Email Address</label>
                 </div>
 
-                <!-- Password Input -->
+                <!-- Password -->
                 <div class="input-group relative">
                     <input type="password" id="password" class="minimal-input pr-8" placeholder=" " required>
                     <label for="password" class="floating-label">Password</label>
@@ -288,10 +259,10 @@
                         </div>
                         <span class="text-xs text-gray-500 hover:text-black transition select-none">Remember me</span>
                     </label>
-                    <a href="#" class="text-xs text-gray-500 hover:text-black transition border-b border-transparent hover:border-gray-300 pb-0.5">Forgot Password?</a>
+                    <a href="forgot-password.html" class="text-xs text-gray-500 hover:text-black transition border-b border-transparent hover:border-gray-300 pb-0.5">Forgot Password?</a>
                 </div>
 
-                <!-- Main Button -->
+                <!-- Submit Button -->
                 <button type="submit" class="btn-black w-full py-4 rounded-xl font-medium text-sm tracking-wide mb-4">
                     Sign In
                 </button>
@@ -311,11 +282,11 @@
 
             </form>
 
-            <!-- Footer -->
+            <!-- Footer: Create Account Link -->
             <div class="text-center mt-10">
                 <p class="text-xs text-gray-400">
                     Don't have an account? 
-                    <a href="#" class="text-black font-semibold ml-1 hover:underline decoration-1 underline-offset-4">Create Account</a>
+                    <a href="signup.html" class="text-black font-semibold ml-1 hover:underline decoration-1 underline-offset-4">Create Account</a>
                 </p>
             </div>
 
@@ -331,11 +302,8 @@
     <!-- 2D BPI Animation -->
     <div class="bpi-container">
         <svg class="bpi-svg" viewBox="0 0 90 40">
-            <!-- B -->
             <path class="bpi-path" d="M10 35 V5 H25 C32 5 35 12 25 18 H10 M25 18 C35 18 35 35 25 35 H10" />
-            <!-- P -->
             <path class="bpi-path" d="M45 35 V5 H55 C62 5 62 18 55 18 H45" />
-            <!-- I -->
             <path class="bpi-path" d="M75 5 V35" />
         </svg>
     </div>
@@ -355,7 +323,6 @@
                 eyeIcon.classList.add('fa-eye');
             }
         }
-        // No tilt script - box is completely stable
     </script>
 </body>
 </html>

@@ -2,364 +2,292 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Join Flux | B.R.I.J.E.S.H P.I</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | BrijeshPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <style>
-        /* --- MINT/EMERALD CAR THEME --- */
-        :root { 
-            --car-accent: #10b981; /* Bright Emerald */
-            --car-dark: #047857;   /* Dark Emerald */
-            --glass-bg: rgba(255, 255, 255, 0.4); /* Light Frosty Glass */
-            --glass-border: rgba(16, 185, 129, 0.3); 
-            --text-main: #064e3b;  /* Very Dark Green Text */
-        }
-        
-        body { 
-            background: #ecfdf5; /* Light Mint Background from photo */
-            color: var(--text-main); 
-            font-family: 'Sora', sans-serif; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            perspective: 1200px; 
-        }
-        
-        /* Road Canvas - Mint Sky */
-        #road-canvas { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
-            background: linear-gradient(to bottom, #ecfdf5 0%, #d1fae5 60%, #064e3b 60%); /* Mint Sky meeting Dark Road */
+        :root {
+            --brand-black: #050505;
+            --brand-charcoal: #111111;
+            --brand-gold: #D4AF37;
         }
 
-        /* --- LIQUID GLASS FLOATING BOX (LIGHT MODE) --- */
-        .mirror-card { 
-            padding: 40px; 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 30px; 
-            
-            /* Greenish borders */
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-top: 1px solid rgba(255, 255, 255, 0.8);
-            border-bottom: 1px solid rgba(4, 120, 87, 0.1);
+        /* --- CRITICAL LAYOUT FIX --- */
+        html {
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Sora', sans-serif;
+            background-color: #ffffff;
+            color: var(--brand-black);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto; /* Allow scroll for longer form */
+            overflow-x: hidden;
+            position: relative;
+        }
 
-            /* Soft Green Shadows */
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* --- LIQUID ANIMATION --- */
+        .liquid {
+            position: absolute;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            z-index: -1;
+            will-change: transform;
+            animation: liquid-morph 15s ease-in-out infinite;
+        }
+
+        .liquid:nth-child(1) { top: -20%; left: -15%; width: 700px; height: 700px; background: #f0f0f0; animation-delay: 0s; }
+        .liquid:nth-child(2) { bottom: -20%; right: -10%; width: 600px; height: 600px; background: #e8e8e8; animation-delay: -5s; animation-direction: reverse; }
+        .liquid:nth-child(3) { top: 30%; left: 40%; width: 400px; height: 400px; background: linear-gradient(135deg, #ffffff, #f3f4f6); filter: blur(50px); opacity: 0.5; animation-duration: 20s; }
+        .liquid:nth-child(4) { bottom: 10%; left: 5%; width: 300px; height: 300px; background: #f3f4f6; opacity: 0.5; animation: liquid-morph 18s ease-in-out infinite reverse; }
+        .liquid:nth-child(5) { top: 10%; right: 20%; width: 200px; height: 200px; background: #e5e7eb; opacity: 0.4; animation: liquid-morph 10s ease-in-out infinite; }
+
+        @keyframes liquid-morph {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -30px) rotate(15deg); }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* --- GLASS CARD --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
             box-shadow: 
-                0 30px 60px rgba(6, 78, 59, 0.15), 
-                inset 0 0 20px rgba(255, 255, 255, 0.5), 
-                0 0 30px rgba(16, 185, 129, 0.1); 
+                0 30px 60px -15px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+        }
 
-            width: 100%; max-width: 400px; 
-            transform-style: preserve-3d; 
-            animation: slide-up 1s ease-out forwards, float 4s ease-in-out infinite 1s;
+        /* --- INPUT FIELDS --- */
+        .input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .minimal-input {
+            width: 100%;
+            padding: 1rem 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem;
+            color: var(--brand-black);
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+
+        .minimal-input:focus {
+            outline: none;
+            border-bottom-color: var(--brand-black);
+        }
+
+        .minimal-input::placeholder {
+            color: #9ca3af;
+            font-weight: 300;
             opacity: 0;
         }
-        
-        @keyframes slide-up { 
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; } 
+
+        .floating-label {
+            position: absolute;
+            top: 1rem;
+            left: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+            pointer-events: none;
+            transition: all 0.3s ease;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        h2 { 
-            text-align: center; 
-            font-weight: 900; 
-            margin-bottom: 20px; 
-            color: var(--car-dark); 
-            /* Removed heavy neon shadow for cleaner light look */
-            text-shadow: 0 0 2px rgba(16, 185, 129, 0.4); 
-            letter-spacing: 2px; 
-            font-family: 'JetBrains Mono', monospace; 
+        .minimal-input:focus ~ .floating-label,
+        .minimal-input:not(:placeholder-shown) ~ .floating-label {
+            top: -0.5rem;
+            font-size: 0.75rem;
+            color: var(--brand-black);
+            font-weight: 500;
         }
 
-        .input-group { margin-bottom: 15px; position: relative; }
-        .input-group input { 
-            width: 100%; 
-            background: rgba(255, 255, 255, 0.6); 
-            border: 1px solid rgba(4, 120, 87, 0.1); 
-            color: var(--text-main); 
-            padding: 14px 14px 14px 50px; 
-            border-radius: 12px; 
-            outline: none; 
-            transition: 0.3s; 
-            font-weight: 600;
+        /* --- BUTTONS --- */
+        .btn-black {
+            background: var(--brand-black);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .input-group input:focus { 
-            border-color: var(--car-accent); 
-            background: #fff; 
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); 
-        }
-        .input-icon { 
-            position: absolute; left: 20px; top: 16px; 
-            color: var(--car-dark); opacity: 0.5; 
-            transition: 0.3s; 
-        }
-        .input-group input:focus ~ .input-icon { color: var(--car-accent); transform: scale(1.1); opacity: 1; }
         
-        .liquid-btn { 
-            width: 100%; 
-            background: var(--car-dark); 
-            color: #fff; 
-            border: none; padding: 16px; border-radius: 12px; 
-            font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: 0.2s; 
-            text-transform: uppercase; 
-            box-shadow: 0 10px 20px rgba(4, 120, 87, 0.2); 
-            margin-top: 10px;
+        .btn-black:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
         }
-        .liquid-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 15px 30px rgba(4, 120, 87, 0.3); 
-            background: var(--car-accent); 
+
+        /* --- BPI ANIMATION --- */
+        .bpi-container {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            width: 80px;
+            height: 40px;
+            z-index: 5;
+            opacity: 0.3;
         }
-        .liquid-btn:active { transform: translateY(1px); }
-        
-        .back-link { 
-            display: block; text-align: center; margin-top: 20px; 
-            font-size: 0.8rem; color: var(--car-dark); opacity: 0.7;
-            text-decoration: none; font-weight: 600; transition: 0.3s; cursor: pointer; 
+
+        .bpi-svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--brand-black);
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
-        .back-link:hover { color: var(--car-accent); opacity: 1; font-weight: 700; }
+
+        .bpi-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: draw-bpi 6s ease-in-out infinite alternate;
+        }
+
+        .bpi-path:nth-child(2) { animation-delay: 0.5s; }
+        .bpi-path:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes draw-bpi {
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            20% { stroke-dashoffset: 100; opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    
-    <canvas id="road-canvas"></canvas>
 
-    <div class="mirror-card">
-        <h2>START YOUR ENGINE</h2>
-        <form>
-            <div class="input-group" onclick="document.querySelector('input[type=text]').focus()">
-                <input type="text" required placeholder="Driver Name">
-                <i class="fa-solid fa-steering-wheel input-icon"></i>
+    <!-- Liquid Backgrounds -->
+    <div class="liquid"></div>
+    <div class="liquid"></div>
+    <div class="liquid"></div>
+    <div class="liquid"></div>
+    <div class="liquid"></div>
+
+    <!-- Signup Container -->
+    <div class="relative z-10 w-full max-w-md px-6 py-10">
+        
+        <!-- Signup Card -->
+        <div class="glass-card rounded-[32px] p-10 md:p-12">
+            
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <a href="index.html" class="inline-block mb-6 group">
+                    <span class="text-xs font-bold tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition">BrijeshPI</span>
+                </a>
+                <h1 class="text-3xl font-serif text-gray-900 mb-2">Create Account</h1>
+                <p class="text-sm text-gray-500 font-light">Join the future of finance</p>
             </div>
-            <div class="input-group" onclick="document.querySelector('input[type=email]').focus()">
-                <input type="email" required placeholder="Email Address">
-                <i class="fa-solid fa-envelope input-icon"></i>
+
+            <!-- Form -->
+            <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='index.html'">
+                
+                <!-- Full Name -->
+                <div class="input-group">
+                    <input type="text" id="fullname" class="minimal-input" placeholder=" " required>
+                    <label for="fullname" class="floating-label">Full Name</label>
+                </div>
+
+                <!-- Phone -->
+                <div class="input-group">
+                    <input type="tel" id="phone" class="minimal-input" placeholder=" " required>
+                    <label for="phone" class="floating-label">Phone Number</label>
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <input type="email" id="email" class="minimal-input" placeholder=" " required>
+                    <label for="email" class="floating-label">Email Address</label>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group relative">
+                    <input type="password" id="password" class="minimal-input pr-8" placeholder=" " required>
+                    <label for="password" class="floating-label">Password</label>
+                    <button type="button" onclick="togglePassword('password', 'eyeIcon1')" class="absolute right-0 top-4 text-gray-400 hover:text-black transition">
+                        <i class="fa-regular fa-eye text-sm" id="eyeIcon1"></i>
+                    </button>
+                </div>
+
+                 <!-- Confirm Password -->
+                 <div class="input-group relative">
+                    <input type="password" id="confirm_password" class="minimal-input pr-8" placeholder=" " required>
+                    <label for="confirm_password" class="floating-label">Re-enter Password</label>
+                    <button type="button" onclick="togglePassword('confirm_password', 'eyeIcon2')" class="absolute right-0 top-4 text-gray-400 hover:text-black transition">
+                        <i class="fa-regular fa-eye text-sm" id="eyeIcon2"></i>
+                    </button>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-black w-full py-4 rounded-xl font-medium text-sm tracking-wide mt-4 mb-4">
+                    Create Account
+                </button>
+
+            </form>
+
+            <!-- Footer: Login Link -->
+            <div class="text-center mt-6">
+                <p class="text-xs text-gray-400">
+                    Already have an account? 
+                    <a href="login.html" class="text-black font-semibold ml-1 hover:underline decoration-1 underline-offset-4">Login</a>
+                </p>
             </div>
-            <div class="input-group" onclick="document.querySelector('input[type=password]').focus()">
-                <input type="password" required placeholder="Create Password">
-                <i class="fa-solid fa-key input-icon"></i>
-            </div>
-            <button type="button" class="liquid-btn" onclick="alert('Account Created! Redirecting...'); window.location.href='login.html'">LAUNCH</button>
-        </form>
-        <a href="login.html" class="back-link">Already have a ride? Login</a>
+
+        </div>
+        
+        <!-- Bottom Text -->
+        <div class="text-center mt-8 opacity-40">
+            <p class="text-[10px] uppercase tracking-[0.2em]">Secured by BrijeshPI Protocol</p>
+        </div>
+
+    </div>
+
+    <!-- 2D BPI Animation -->
+    <div class="bpi-container">
+        <svg class="bpi-svg" viewBox="0 0 90 40">
+            <!-- B -->
+            <path class="bpi-path" d="M10 35 V5 H25 C32 5 35 12 25 18 H10 M25 18 C35 18 35 35 25 35 H10" />
+            <!-- P -->
+            <path class="bpi-path" d="M45 35 V5 H55 C62 5 62 18 55 18 H45" />
+            <!-- I -->
+            <path class="bpi-path" d="M75 5 V35" />
+        </svg>
     </div>
 
     <script>
-        /**
-         * 2D MINT CYBER CAR ROAD ANIMATION
-         */
-        const canvas = document.getElementById('road-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        
-        // Car Variables
-        let carX = 0;
-        let carY = 0;
-        let roadLines = [];
-
-        function init() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            carX = width / 2;
-            carY = height - 100;
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
             
-            // Initialize road markings
-            roadLines = [];
-            for(let i=0; i<10; i++) {
-                roadLines.push({
-                    y: i * 100,
-                    h: 60
-                });
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
             }
         }
-
-        // --- UPDATED GREEN CAR ---
-        function drawCar(x, y) {
-            ctx.save();
-            ctx.translate(x, y);
-
-            // 1. Underbody Glow (Emerald)
-            ctx.shadowBlur = 40;
-            ctx.shadowColor = "#10b981";
-            ctx.fillStyle = "rgba(16, 185, 129, 0.4)";
-            ctx.beginPath();
-            ctx.ellipse(0, 10, 30, 15, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 2. Tires
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = "#022c22"; /* Very Dark Green */
-            ctx.fillRect(-50, -10, 15, 30);
-            ctx.fillRect(35, -10, 15, 30);
-
-            // 3. Car Body (Chassis)
-            const bodyGrad = ctx.createLinearGradient(0, -60, 0, 10);
-            bodyGrad.addColorStop(0, "#064e3b");   /* Dark Emerald */
-            bodyGrad.addColorStop(0.4, "#065f46"); 
-            bodyGrad.addColorStop(1, "#022c22");   
-
-            ctx.fillStyle = bodyGrad;
-            
-            // Geometric Shape
-            ctx.beginPath();
-            ctx.moveTo(-45, 10);  
-            ctx.lineTo(45, 10);   
-            ctx.lineTo(40, -20);  
-            ctx.lineTo(30, -50);  
-            ctx.lineTo(-30, -50); 
-            ctx.lineTo(-40, -20); 
-            ctx.closePath();
-            ctx.fill();
-
-            // 4. Neon Body Outline (Bright Emerald)
-            ctx.strokeStyle = "#34d399";
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#10b981";
-            ctx.stroke();
-
-            // 5. Rear Window
-            ctx.fillStyle = "#022c22";
-            ctx.shadowBlur = 0;
-            ctx.beginPath();
-            ctx.moveTo(-25, -45);
-            ctx.lineTo(25, -45);
-            ctx.lineTo(32, -22);
-            ctx.lineTo(-32, -22);
-            ctx.fill();
-
-            // Window Slats
-            ctx.strokeStyle = "rgba(52, 211, 153, 0.3)";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-27, -38); ctx.lineTo(27, -38);
-            ctx.moveTo(-29, -32); ctx.lineTo(29, -32);
-            ctx.stroke();
-
-            // 6. Taillights (Keep Red/Pink for safety, or Green?) 
-            // Let's use a reddish-orange for contrast against green
-            ctx.shadowBlur = 25;
-            ctx.shadowColor = "#f59e0b"; /* Amber */
-            ctx.fillStyle = "#f59e0b";
-            ctx.beginPath();
-            ctx.roundRect(-42, -15, 84, 6, 2);
-            ctx.fill();
-            
-            // Brake Lights
-            ctx.fillStyle = "#fbbf24"; 
-            ctx.shadowBlur = 35;
-            ctx.fillRect(-40, -14, 25, 4); 
-            ctx.fillRect(15, -14, 25, 4);  
-
-            // 7. License Plate
-            ctx.fillStyle = "#000";
-            ctx.shadowBlur = 0;
-            ctx.fillRect(-10, 0, 20, 8);
-            
-            ctx.fillStyle = "#10b981";
-            ctx.font = "bold 6px monospace";
-            ctx.textAlign = "center";
-            ctx.fillText("FLUX", 0, 6);
-
-            ctx.restore();
-        }
-
-        function drawRoad() {
-            // Horizon is lower part of screen, Sky is #ecfdf5
-            const horizonY = height * 0.6; // Road starts at 60% height
-            
-            // Road Surface (Dark Emerald Asphalt)
-            ctx.fillStyle = "#064e3b"; 
-            ctx.beginPath();
-            ctx.moveTo(width/2 - 20, horizonY);
-            ctx.lineTo(width/2 + 20, horizonY);
-            ctx.lineTo(width, height);   
-            ctx.lineTo(0, height);       
-            ctx.fill();
-            
-            // Neon Edges (Bright Emerald)
-            ctx.strokeStyle = "#10b981";
-            ctx.lineWidth = 4;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#10b981";
-            ctx.beginPath();
-            ctx.moveTo(width/2 - 20, horizonY);
-            ctx.lineTo(0, height);
-            ctx.moveTo(width/2 + 20, horizonY);
-            ctx.lineTo(width, height);
-            ctx.stroke();
-            ctx.shadowBlur = 0; 
-            
-            // Moving Center Lines
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            roadLines.forEach(line => {
-                // Adjust projection for new horizon
-                const progress = (line.y - horizonY) / (height - horizonY);
-                if(progress > 0 && progress < 1) {
-                    const x = width/2;
-                    ctx.moveTo(x, line.y);
-                    ctx.lineTo(x, line.y + line.h * progress);
-                }
-                line.y += 5 + progress * 15; 
-                if(line.y > height) {
-                    line.y = horizonY;
-                }
-            });
-            ctx.stroke();
-        }
-        
-        function drawCity() {
-             // City Silhouette in Distance (DARKER GREEN for visibility)
-             ctx.fillStyle = "rgba(6, 78, 59, 0.3)"; /* Changed from faint 0.1 to distinct 0.3 dark green */
-             const horizonY = height * 0.6;
-             ctx.beginPath();
-             ctx.moveTo(0, horizonY);
-             let x = 0;
-             while(x < width) {
-                 const buildingW = 20 + Math.random() * 40;
-                 const buildingH = 20 + Math.random() * 80;
-                 ctx.lineTo(x, horizonY - buildingH);
-                 ctx.lineTo(x + buildingW, horizonY - buildingH);
-                 x += buildingW;
-             }
-             ctx.lineTo(width, horizonY);
-             ctx.fill();
-        }
-
-        function animate() {
-            // Fill Background with Mint Sky
-            const grad = ctx.createLinearGradient(0, 0, 0, height);
-            grad.addColorStop(0, "#ecfdf5");
-            grad.addColorStop(0.6, "#d1fae5");
-            grad.addColorStop(0.6, "#064e3b"); // Hard edge for horizon
-            grad.addColorStop(1, "#064e3b");
-            
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,width,height);
-
-            drawCity();
-            drawRoad();
-            const bounce = Math.sin(Date.now() / 100) * 2;
-            drawCar(width/2, height - 100 + bounce);
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', init);
-        init();
-        animate();
     </script>
 </body>
 </html>
