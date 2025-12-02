@@ -10,6 +10,9 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
     
+    <!-- Three.js for Stable 3D Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <!-- Fonts: Sora (Modern Sans) & Playfair Display (Refined Serif) -->
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
@@ -62,18 +65,28 @@
             right: 40px;
             z-index: 50;
             transition: all 0.5s ease;
-            mix-blend-mode: exclusion;
+            mix-blend-mode: normal;
         }
         
         .brand-seal {
-            width: 60px; height: 60px;
-            border: 1px solid #fff;
+            width: 70px; height: 70px;
+            border: 1px solid #f0f0f0;
+            background: white;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             animation: rotate-seal 20s linear infinite;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
-        .brand-seal i { color: #fff; font-size: 1.2rem; }
+        /* Placeholder logic for logo if image fails */
+        .brand-seal::after {
+            content: "B";
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--brand-black);
+        }
+        .brand-seal img { display: none; } /* Hidden until a real source is provided */
         
         @keyframes rotate-seal { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -166,11 +179,72 @@
             position: relative;
         }
 
+        /* --- MARQUEE --- */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- PROJECT CARDS --- */
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+        .project-card img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .group:hover .project-card img { transform: scale(1.05); }
+        .project-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .group:hover .project-overlay { opacity: 1; }
+
+        /* --- 3D ANIMATION CONTAINERS --- */
+        #security-3d-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #hero-3d-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* --- FLOATING CARDS (HERO) --- */
+        .floating-card {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            z-index: 10;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
         /* Mobile Adjustments */
         @media (max-width: 768px) {
             .bento-card { padding: 1.5rem; }
             #fixed-avatar-container { bottom: 20px; right: 20px; }
             h1 { font-size: 2.5rem !important; }
+            .hero-floating-elements { display: none; }
         }
     </style>
 </head>
@@ -190,34 +264,70 @@
         </nav>
     </header>
 
-    <!-- Floating Brand Seal -->
+    <!-- Floating Brand Seal (UPDATED WITH LOGO) -->
     <div id="fixed-avatar-container">
         <div class="brand-seal">
-            <i class="fa-solid fa-gem"></i>
+            <!-- Logo placeholder or text fallback applied in CSS -->
         </div>
     </div>
 
     <main class="relative">
 
-        <!-- SECTION 1: HERO (Light & Airy) -->
-        <section class="min-h-screen flex flex-col items-center justify-center text-center relative z-20 bg-white">
-            <span class="section-label text-black/50" data-aos="fade-down">Core Identity</span>
+        <!-- SECTION 1: HERO (UPDATED WITH 3D ANIMATION) -->
+        <section class="min-h-screen flex flex-col items-center justify-center text-center relative z-20 bg-white overflow-hidden">
             
-            <h1 class="text-5xl md:text-8xl font-medium mb-6 text-gray-900 leading-tight" data-aos="fade-up" data-aos-delay="100">
-                Digital Precision. <br>
-                <span class="italic serif-font text-gray-800">Intelligent Simplicity.</span>
-            </h1>
+            <!-- 3D Animation Background for Hero -->
+            <div id="hero-3d-canvas" class="absolute inset-0 pointer-events-none z-0 opacity-40"></div>
 
-            <div class="h-px w-24 bg-gray-300 my-8" data-aos="scale-x" data-aos-delay="200"></div>
+            <div class="container mx-auto px-4 text-center z-20 relative">
+                <span class="section-label text-black/50" data-aos="fade-down">Core Identity</span>
+                
+                <h1 class="text-5xl md:text-8xl font-medium mb-6 text-gray-900 leading-tight" data-aos="fade-up" data-aos-delay="100">
+                    Digital Precision. <br>
+                    <span class="italic serif-font text-gray-800">Intelligent Simplicity.</span>
+                </h1>
 
-            <p class="text-sm md:text-lg text-gray-600 max-w-2xl leading-relaxed tracking-wide font-light px-4" data-aos="fade-up" data-aos-delay="300">
-                BrijeshPI stands for a new class of digital craftsmanship where sophisticated design meets precise engineering.
-            </p>
+                <div class="h-px w-24 bg-gray-300 my-8 mx-auto" data-aos="scale-x" data-aos-delay="200"></div>
 
-            <p class="mt-8 text-xs uppercase tracking-[0.2em] text-accent font-semibold" data-aos="fade-up" data-aos-delay="400">
-                Excellence by Design. Intelligence by Nature.
-            </p>
+                <p class="text-sm md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed tracking-wide font-light px-4" data-aos="fade-up" data-aos-delay="300">
+                    BrijeshPI stands for a new class of digital craftsmanship where sophisticated design meets precise engineering.
+                </p>
+
+                <p class="mt-8 text-xs uppercase tracking-[0.2em] text-accent font-semibold" data-aos="fade-up" data-aos-delay="400">
+                    Excellence by Design. Intelligence by Nature.
+                </p>
+            </div>
+
+            <!-- Floating Elements (Visual Interest) -->
+            <div class="hero-floating-elements absolute inset-0 pointer-events-none overflow-hidden">
+                <div class="floating-card p-4 top-[20%] left-[10%] w-48" style="animation-delay: 0s;">
+                    <div class="h-24 bg-gray-50 rounded-sm mb-3 flex items-center justify-center border border-gray-100">
+                        <i class="fa-solid fa-code text-2xl text-gray-300"></i>
+                    </div>
+                    <div class="h-1 w-2/3 bg-gray-200 rounded mb-2"></div>
+                    <div class="h-1 w-1/3 bg-gray-100 rounded"></div>
+                </div>
+                <div class="floating-card p-4 bottom-[20%] right-[10%] w-40 flex items-center gap-3" style="animation-delay: 2s;">
+                    <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
+                        <i class="fa-solid fa-arrow-trend-up text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="text-[0.6rem] text-gray-400 uppercase tracking-wide">Efficiency</div>
+                        <div class="text-lg font-serif">100%</div>
+                    </div>
+                </div>
+            </div>
         </section>
+
+        <!-- INFINITE SCROLL MARQUEE -->
+        <div class="py-8 bg-black text-white border-y border-gray-800 marquee-container overflow-hidden relative z-20">
+            <div class="marquee-content text-xs font-bold tracking-[0.3em] uppercase opacity-60">
+                Strategy <span class="mx-8">•</span> Design <span class="mx-8">•</span> Engineering <span class="mx-8">•</span> Intelligence <span class="mx-8">•</span> Growth <span class="mx-8">•</span> 
+                Strategy <span class="mx-8">•</span> Design <span class="mx-8">•</span> Engineering <span class="mx-8">•</span> Intelligence <span class="mx-8">•</span> Growth <span class="mx-8">•</span>
+                Strategy <span class="mx-8">•</span> Design <span class="mx-8">•</span> Engineering <span class="mx-8">•</span> Intelligence <span class="mx-8">•</span> Growth <span class="mx-8">•</span>
+                Strategy <span class="mx-8">•</span> Design <span class="mx-8">•</span> Engineering <span class="mx-8">•</span> Intelligence <span class="mx-8">•</span> Growth <span class="mx-8">•</span>
+            </div>
+        </div>
 
         <!-- SECTION 2: THE STORY (Dark Mode Contrast) -->
         <section class="py-32 relative z-20 dark-section">
@@ -328,7 +438,87 @@
             </div>
         </section>
 
-        <!-- SECTION 4: VISION & PERSONALITY (Clean Typography) -->
+        <!-- SECTION 4: TRUST & SECURITY (Three.js Replacement) -->
+        <section class="py-32 bg-white relative z-20" id="trust">
+            <div class="container mx-auto px-6">
+                
+                <div class="flex flex-col md:flex-row items-center gap-20">
+                    <!-- Text Side -->
+                    <div class="md:w-1/2" data-aos="fade-right">
+                        <span class="section-label text-black/50">Unwavering Security</span>
+                        <h2 class="text-4xl md:text-5xl text-gray-900 serif-font mb-8 leading-tight">Trust is not a feature.<br>It is the foundation.</h2>
+                        <p class="text-lg text-gray-500 font-light leading-relaxed mb-10">
+                            In an era of digital vulnerability, we prioritize the sanctity of your data above all else. BrijeshPI architectures are engineered with enterprise-grade encryption and privacy-first protocols from day one.
+                        </p>
+                        
+                        <div class="space-y-8">
+                            <div class="flex items-start gap-6 border-l-2 border-gray-100 pl-6 hover:border-black transition duration-300">
+                                <div>
+                                    <h4 class="text-xl font-serif mb-2">Bank-Grade Protocols</h4>
+                                    <p class="text-xs text-gray-400 uppercase tracking-widest leading-relaxed">AES-256 Standard Encryption ensures your intellectual property remains impenetrable.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-6 border-l-2 border-gray-100 pl-6 hover:border-black transition duration-300">
+                                <div>
+                                    <h4 class="text-xl font-serif mb-2">Data Sovereignty</h4>
+                                    <p class="text-xs text-gray-400 uppercase tracking-widest leading-relaxed">Complete ownership and control of your digital infrastructure with zero third-party dependency.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-8">
+                                <button class="btn-brand">Review Security Protocols</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3D Animation Side -->
+                    <div class="md:w-1/2 w-full" data-aos="fade-left">
+                        <div class="relative overflow-hidden rounded-sm aspect-[3/4] group shadow-2xl bg-[#0a0a0a]">
+                            <!-- High-end Three.js Animation Container -->
+                            <div id="security-3d-canvas"></div>
+                            
+                            <!-- Overlay UI Element -->
+                            <div class="absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur-md p-6 border border-white/50 shadow-lg rounded-sm pointer-events-none">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-gray-400">System Status</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span class="text-xs font-bold text-emerald-600">SECURE</span>
+                                    </div>
+                                </div>
+                                <div class="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-black w-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 5: IMPACT METRICS (New) -->
+        <section class="py-24 bg-gray-50 border-y border-gray-200">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    <div data-aos="fade-up">
+                        <div class="text-5xl font-serif text-gray-900 mb-2">98%</div>
+                        <p class="text-xs text-gray-400 uppercase tracking-[0.2em]">Client Satisfaction</p>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="100">
+                        <div class="text-5xl font-serif text-gray-900 mb-2">3x</div>
+                        <p class="text-xs text-gray-400 uppercase tracking-[0.2em]">Revenue Growth</p>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="200">
+                        <div class="text-5xl font-serif text-gray-900 mb-2">Global</div>
+                        <p class="text-xs text-gray-400 uppercase tracking-[0.2em]">Reach & Impact</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: VISION & PERSONALITY (Clean Typography) -->
         <section class="py-32 bg-white relative z-20 border-t border-gray-100">
             <div class="container mx-auto px-6">
                 <div class="grid md:grid-cols-2 gap-16">
@@ -399,41 +589,191 @@
             requestAnimationFrame(raf);
         }
 
-        // Particle Canvas - Refined Edition (Slow, Grey)
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
+        // --- BACKGROUND PARTICLE SYSTEM (Canvas) ---
+        const bgCanvas = document.getElementById('particle-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgWidth, bgHeight, bgParticles = [];
         const isMobile = window.innerWidth < 768;
         
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initParticles(); }
-        
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.1; this.vy = (Math.random() - 0.5) * 0.1; // Very Slow
-                this.size = Math.random() * 2; this.alpha = Math.random() * 0.2;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
-            }
-            draw() { 
-                ctx.fillStyle = `rgba(50, 50, 50, ${this.alpha})`; 
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); 
+        function initBgParticles() {
+            bgWidth = bgCanvas.width = window.innerWidth;
+            bgHeight = bgCanvas.height = window.innerHeight;
+            bgParticles = [];
+            for (let i = 0; i < (isMobile ? 20 : 50); i++) {
+                bgParticles.push({
+                    x: Math.random() * bgWidth,
+                    y: Math.random() * bgHeight,
+                    vx: (Math.random() - 0.5) * 0.1,
+                    vy: (Math.random() - 0.5) * 0.1,
+                    size: Math.random() * 1.5,
+                    alpha: Math.random() * 0.2
+                });
             }
         }
         
-        function initParticles() { particles = []; for (let i = 0; i < (isMobile?20:60); i++) particles.push(new Particle()); }
-        
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
+        function animateBgParticles() {
+            bgCtx.clearRect(0, 0, bgWidth, bgHeight);
+            bgParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = bgWidth; if (p.x > bgWidth) p.x = 0;
+                if (p.y < 0) p.y = bgHeight; if (p.y > bgHeight) p.y = 0;
+                bgCtx.fillStyle = `rgba(50, 50, 50, ${p.alpha})`;
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            });
+            requestAnimationFrame(animateBgParticles);
         }
         
-        window.addEventListener('resize', resize);
-        resize(); animate();
+        window.addEventListener('resize', initBgParticles);
+        initBgParticles();
+        animateBgParticles();
+
+        // --- THREE.JS SECURITY SHIELD ANIMATION (TRUST SECTION) ---
+        function initSecurity3D() {
+            const container = document.getElementById('security-3d-canvas');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0a0a0a, 0.05);
+
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 2.5;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const geometry = new THREE.IcosahedronGeometry(1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0xD4AF37, wireframe: true, transparent: true, opacity: 0.6 });
+            const coreGeometry = new THREE.IcosahedronGeometry(0.8, 0);
+            const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x111111, wireframe: false, transparent: true, opacity: 0.8 });
+
+            const shield = new THREE.Mesh(geometry, material);
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            
+            const shieldGroup = new THREE.Group();
+            shieldGroup.add(shield);
+            shieldGroup.add(core);
+            scene.add(shieldGroup);
+
+            const particlesGeo = new THREE.BufferGeometry();
+            const particlesCount = 100;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 4;
+            }
+            particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMat = new THREE.PointsMaterial({ size: 0.02, color: 0xD4AF37, transparent: true, opacity: 0.4 });
+            const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+            scene.add(particlesMesh);
+
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                shieldGroup.rotation.y += 0.005;
+                shieldGroup.rotation.x += 0.002;
+                particlesMesh.rotation.y -= 0.002;
+                shieldGroup.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+                renderer.render(scene, camera);
+            }
+            animate3D();
+
+            window.addEventListener('resize', () => {
+                if (container) {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                }
+            });
+        }
+
+        // --- THREE.JS HERO ANIMATION (NEW PARTICLE SPHERE) ---
+        function initHero3D() {
+            const container = document.getElementById('hero-3d-canvas');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            // No fog needed for white background usually, but let's keep it clean
+            
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 3;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create a larger particle sphere
+            const particlesGeometry = new THREE.BufferGeometry();
+            const count = 600;
+            const positions = new Float32Array(count * 3);
+            
+            for(let i = 0; i < count; i++) {
+                // Distribute on sphere surface roughly
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const r = 2.5 + Math.random() * 0.5; // Radius
+
+                const x = r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.sin(phi) * Math.sin(theta);
+                const z = r * Math.cos(phi);
+
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x999999, // Subtle grey
+                size: 0.02,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const pointCloud = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(pointCloud);
+
+            // Add some connecting lines for "Network" feel (Optional, can be heavy, sticking to points for performance)
+            // Just the cloud is elegant.
+
+            function animateHero() {
+                requestAnimationFrame(animateHero);
+                // Rotate entire system
+                pointCloud.rotation.y += 0.001;
+                pointCloud.rotation.x += 0.0005;
+                
+                renderer.render(scene, camera);
+            }
+            animateHero();
+
+            window.addEventListener('resize', () => {
+                if (container) {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                }
+            });
+        }
+
+        // Initialize all animations
+        document.addEventListener('DOMContentLoaded', () => {
+            initSecurity3D();
+            initHero3D();
+        });
+        // Fallback call
+        setTimeout(() => {
+            if (!document.getElementById('security-3d-canvas').children.length) initSecurity3D();
+            if (!document.getElementById('hero-3d-canvas').children.length) initHero3D();
+        }, 500);
+
     </script>
 </body>
 </html>
