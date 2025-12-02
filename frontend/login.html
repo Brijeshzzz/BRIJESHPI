@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flux Core | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- FLUX THEME (LIGHT MINT VARIANT) --- */
+        :root {
+            /* Changed to match the photo: Dark Emerald Green accent on Light Mint */
+            --neon-cyan: #047857; /* Dark Green accent */
+            --deep-blue: #10b981; /* Lighter Green */
+            --glass-bg: rgba(255, 255, 255, 0.35); /* Light/White Glass */
+            --glass-border: rgba(255, 255, 255, 0.8); /* White border */
+            --text-main: #064e3b; /* Very Dark Green for text */
+            --input-bg: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            /* Made slightly greener (Emerald-50 instead of Teal-50) */
+            background: #ecfdf5; 
+            color: var(--text-main);
+            font-family: 'Sora', sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            perspective: 1200px;
+        }
+
+        /* --- BACKGROUND LAYERS --- */
+        #gradient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* Shifted gradient to be more "greenish" (Emerald tones) */
+            background: radial-gradient(circle at 50% 50%, #ecfdf5 0%, #d1fae5 90%);
+            z-index: -2;
+        }
+        
+        #water-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            animation: ocean-pulse 8s ease-in-out infinite;
+        }
+
+        /* COMPANY NAME BACKGROUND */
+        .bg-brand-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .bg-brand-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 900;
+            font-size: 11vw;
+            /* Made the background text slightly more "greenish" and visible */
+            color: rgba(16, 185, 129, 0.05); /* Lighter green fill */
+            -webkit-text-stroke: 2px rgba(16, 185, 129, 0.2); /* Brighter green outline */
+            white-space: nowrap;
+            letter-spacing: -0.5vw;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow: none; 
+            animation: text-scan 4s ease-in-out infinite alternate;
+        }
+        
+        .bg-brand-text::before {
+            content: 'B.R.I.J.E.S.H P.I';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            color: rgba(16, 185, 129, 0.15); 
+            filter: blur(15px);
+            animation: pulse-glow 3s infinite;
+            z-index: -1;
+        }
+
+        @keyframes text-scan {
+            0% { opacity: 0.6; transform: scale(1); letter-spacing: -0.5vw; }
+            100% { opacity: 1; transform: scale(1.02); letter-spacing: -0.2vw; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.2; filter: blur(15px); }
+            50% { opacity: 0.5; filter: blur(20px); }
+        }
+        
+        @keyframes ocean-pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* --- 3D FLOATING GLASS CARD --- */
+        .card-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 450px;
+            transform-style: preserve-3d;
+            animation: zero-gravity 6s ease-in-out infinite;
+        }
+
+        @keyframes zero-gravity {
+            0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+            50% { transform: translateY(-10px) rotateX(2deg) rotateY(-2deg); }
+            100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+        }
+
+        /* MAIN CARD CONTAINER */
+        .mirror-card {
+            position: relative;
+            padding: 40px 40px;
+            border-radius: 30px;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease-out;
+        }
+
+        /* SEPARATE BACKGROUND LAYER FOR CLIPPING */
+        .card-bg-layer {
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid var(--glass-border);
+            /* Lighter shadows for light mode */
+            box-shadow: 
+                0 30px 60px -10px rgba(6, 78, 59, 0.15),
+                inset 0 0 40px rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card-wrapper:hover .card-bg-layer {
+            box-shadow: 
+                0 40px 80px -10px rgba(6, 78, 59, 0.25),
+                0 0 30px rgba(255, 255, 255, 0.5);
+            border-color: #fff;
+        }
+
+        /* CONTENT Z-INDEX FIX */
+        h2, form, .google-btn, .divider, .create-account, .back-link {
+            position: relative;
+            z-index: 10;
+            transform: translateZ(30px);
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: 4px;
+            margin-bottom: 25px;
+            color: var(--text-main); /* Dark Green */
+            /* Removed heavy glow */
+            text-shadow: 0 0 2px rgba(4, 120, 87, 0.2);
+            pointer-events: none;
+        }
+
+        /* --- SOCIAL LOGIN --- */
+        .google-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.7); /* Lighter bg */
+            border: 1px solid rgba(6, 78, 59, 0.1);
+            color: var(--text-main);
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            transform: translateZ(50px); 
+            pointer-events: auto;
+        }
+        
+        .google-btn:hover {
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(6, 78, 59, 0.1);
+            transform: translateZ(55px) scale(1.02);
+            border-color: var(--neon-cyan);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: rgba(6, 78, 59, 0.4); /* Darker divider */
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            transform: translateZ(20px);
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(6, 78, 59, 0.15);
+        }
+        .divider::before { margin-right: 10px; }
+        .divider::after { margin-left: 10px; }
+
+        /* --- INPUTS --- */
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            transform: translateZ(40px);
+            cursor: text;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 2px solid rgba(6, 78, 59, 0.1);
+            color: var(--text-main);
+            padding: 16px 20px 16px 50px;
+            border-radius: 16px;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+        }
+
+        .input-group label {
+            position: absolute;
+            left: 50px;
+            top: 16px;
+            font-size: 0.9rem;
+            color: rgba(6, 78, 59, 0.6);
+            transition: 0.3s ease;
+            z-index: 3;
+            pointer-events: none; 
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px; top: 18px;
+            color: rgba(6, 78, 59, 0.4);
+            transition: 0.3s;
+            z-index: 3;
+            pointer-events: none; 
+        }
+
+        .input-group input:focus ~ label,
+        .input-group input:valid ~ label {
+            top: -22px; left: 10px;
+            font-size: 0.75rem;
+            color: var(--neon-cyan);
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: none;
+        }
+
+        .input-group input:focus {
+            background: #fff;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .input-group input:focus ~ .input-icon {
+            color: var(--neon-cyan);
+            transform: scale(1.2);
+        }
+
+        /* --- LINKS --- */
+        .forgot-pass {
+            text-align: right;
+            margin-bottom: 20px;
+            transform: translateZ(30px);
+            position: relative;
+        }
+        .forgot-pass a {
+            color: rgba(6, 78, 59, 0.7);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+            display: inline-block; 
+            pointer-events: auto;
+        }
+        .forgot-pass a:hover { color: var(--neon-cyan); font-weight: 700; }
+
+        /* --- BUTTON --- */
+        .liquid-btn {
+            width: 100%;
+            background: transparent;
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            transform: translateZ(50px); 
+            box-shadow: 0 5px 15px rgba(4, 120, 87, 0.1);
+            pointer-events: auto;
+            z-index: 60;
+        }
+
+        .liquid-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--neon-cyan);
+            z-index: -1;
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .liquid-btn:hover {
+            color: #fff; /* White text on hover */
+            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.3);
+            transform: translateZ(55px) scale(1.05);
+        }
+
+        .liquid-btn:hover::before { width: 100%; }
+
+        .create-account {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(6, 78, 59, 0.6);
+            transform: translateZ(30px);
+            position: relative;
+        }
+        .create-account a {
+            color: var(--neon-cyan);
+            font-weight: 700;
+            margin-left: 5px;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .create-account a:hover { color: var(--deep-blue); }
+
+        /* FIXED BACK BUTTON */
+        .fixed-back-btn {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            z-index: 9999;
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            color: rgba(6, 78, 59, 0.7);
+            text-decoration: none;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.5); /* Light bg */
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(6, 78, 59, 0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .fixed-back-btn:hover { 
+            color: var(--neon-cyan); 
+            border-color: var(--neon-cyan);
+            box-shadow: 0 5px 15px rgba(4, 120, 87, 0.1);
+        }
+        .fixed-back-btn i { transition: transform 0.3s; }
+        .fixed-back-btn:hover i { transform: translateX(-5px); }
+
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="fixed-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Return to Home
+    </a>
+
+    <div id="gradient-bg"></div>
+    
+    <div class="bg-brand-container">
+        <div class="bg-brand-text">B.R.I.J.E.S.H P.I</div>
+    </div>
+    
+    <canvas id="water-canvas"></canvas>
+
+    <div class="card-wrapper" id="tilt-card">
+        <div class="mirror-card">
+            <div class="card-bg-layer"></div>
+
+            <h2>LOGIN</h2>
+
+            <a href="google-login.html" class="google-btn">
+                <i class="fa-brands fa-google text-xl"></i> 
+                <span>Sign in with Google</span>
+            </a>
+
+            <div class="divider">OR</div>
+            
+            <form id="login-form">
+                <div class="input-group" onclick="document.getElementById('identity-input').focus()">
+                    <input type="text" required autocomplete="off" id="identity-input">
+                    <label for="identity-input">Email or Username</label>
+                    <i class="fa-solid fa-user input-icon"></i>
+                </div>
+                
+                <div class="input-group" onclick="document.getElementById('cipher-input').focus()">
+                    <input type="password" required id="cipher-input">
+                    <label for="cipher-input">Password</label>
+                    <i class="fa-solid fa-lock input-icon"></i>
+                </div>
+
+                <div class="forgot-pass">
+                    <a href="forgot-password.html">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="liquid-btn" id="submit-btn">
+                    <span id="btn-text">LOGIN</span>
+                </button>
+            </form>
+            
+            <div class="create-account">
+                <span>Don't have an account?</span>
+                <a href="signup.html">Create Account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('login-form');
+        const btn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> VERIFYING...';
+            
+            setTimeout(() => {
+                btnText.innerHTML = 'GRANTED';
+                btn.style.backgroundColor = '#047857';
+                btn.style.borderColor = '#047857';
+                btn.style.color = '#fff';
+                btn.style.boxShadow = '0 0 30px rgba(4, 120, 87, 0.4)';
+                
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+            }, 1500);
+        });
+
+        const cardWrapper = document.getElementById('tilt-card');
+        const card = cardWrapper.querySelector('.mirror-card');
+
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        const canvas = document.getElementById('water-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, points = [], mouse = { x: -1000, y: -1000 }, gap = 50, tick = 0;
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            points = [];
+            for (let x = 0; x <= width + gap; x += gap) {
+                for (let y = 0; y <= height + gap; y += gap) {
+                    points.push({ x: x, y: y, originX: x, originY: y, vx: 0, vy: 0, waveOffset: Math.random() * Math.PI * 2 });
+                }
+            }
+        }
+        window.addEventListener('resize', init);
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+        function animate() {
+            // Changed fade effect to match light background
+            ctx.fillStyle = 'rgba(236, 253, 245, 0.2)'; // Matched background #ecfdf5
+            ctx.fillRect(0, 0, width, height);
+            tick += 0.02;
+
+            for (let i = 0; i < points.length; i++) {
+                let p = points[i];
+                const waveX = Math.sin(tick + p.waveOffset + p.y * 0.01) * 2;
+                const waveY = Math.cos(tick + p.waveOffset + p.x * 0.01) * 2;
+                const dx = p.x - mouse.x;
+                const dy = p.y - mouse.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const repelDist = 250;
+
+                if (dist < repelDist) {
+                    const force = (repelDist - dist) / repelDist;
+                    const angle = Math.atan2(dy, dx);
+                    p.vx += Math.cos(angle) * force * 1.2;
+                    p.vy += Math.sin(angle) * force * 1.2;
+                }
+
+                const homeDx = (p.originX + waveX) - p.x;
+                const homeDy = (p.originY + waveY) - p.y;
+                p.vx += homeDx * 0.05; p.vy += homeDy * 0.05;
+                p.vx *= 0.9; p.vy *= 0.9;
+                p.x += p.vx; p.y += p.vy;
+            }
+
+            ctx.beginPath();
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                const speed = Math.abs(p.vx) + Math.abs(p.vy);
+                const alpha = Math.min(0.6, 0.05 + speed * 0.2);
+                
+                if (i + 1 < points.length && Math.abs(points[i+1].originX - p.originX) < gap * 1.5) {
+                    ctx.moveTo(p.x, p.y); ctx.lineTo(points[i+1].x, points[i+1].y);
+                }
+                if(speed > 0.2) {
+                    // Changed dots to Dark Emerald Green
+                    ctx.fillStyle = `rgba(4, 120, 87, ${alpha})`; ctx.fillRect(p.x, p.y, 2, 2);
+                }
+            }
+            // Changed lines to very faint Green
+            ctx.strokeStyle = 'rgba(4, 120, 87, 0.1)'; ctx.lineWidth = 1; ctx.stroke();
+            requestAnimationFrame(animate);
+        }
+        init(); animate();
+    </script>
+</body>
+</html>

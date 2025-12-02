@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BrijeshPI | Digital Precision & Intelligent Simplicity</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    
+    <!-- Fonts: Sora (Modern Sans) & Playfair Display (Refined Serif) -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- SMOOTH SCROLL --- */
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+
+        /* --- BRAND PALETTE --- */
+        :root {
+            --brand-black: #050505;
+            --brand-charcoal: #111111;
+            --brand-white: #FFFFFF;
+            --brand-grey: #F4F4F5;
+            --brand-gold: #D4AF37;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background-color: var(--brand-white);
+            color: var(--brand-black);
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .tracking-widest-brand {
+            letter-spacing: 0.25em;
+        }
+
+        /* --- PARTICLES --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.3;
+        }
+
+        /* --- FIXED SEAL --- */
+        #fixed-avatar-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 50;
+            transition: all 0.5s ease;
+            mix-blend-mode: exclusion;
+        }
+        
+        .brand-seal {
+            width: 60px; height: 60px;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: rotate-seal 20s linear infinite;
+        }
+        
+        .brand-seal i { color: #fff; font-size: 1.2rem; }
+        
+        @keyframes rotate-seal { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- BENTO GRID CARDS --- */
+        .bento-card {
+            background: #FAFAFA;
+            border: 1px solid #E5E5E5;
+            border-radius: 4px;
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.4s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        
+        .bento-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            border-color: var(--brand-black);
+        }
+
+        .bento-icon-bg {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+            transition: all 0.5s ease;
+            transform: rotate(-10deg);
+        }
+        
+        .bento-card:hover .bento-icon-bg {
+            transform: rotate(0deg) scale(1.1);
+            opacity: 0.1;
+        }
+
+        /* --- UTILITIES --- */
+        .text-accent { color: var(--brand-gold); }
+        .section-label {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            margin-bottom: 1.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .btn-brand {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--brand-black);
+            color: var(--brand-black);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            transition: all 0.4s ease;
+            background: transparent;
+        }
+        
+        .btn-brand:hover {
+            background: var(--brand-black);
+            color: var(--brand-white);
+        }
+
+        .btn-white {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            border: 1px solid white;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            transition: all 0.4s ease;
+            background: transparent;
+        }
+
+        .btn-white:hover {
+            background: white;
+            color: black;
+        }
+
+        /* --- DARK SECTION --- */
+        .dark-section {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .bento-card { padding: 1.5rem; }
+            #fixed-avatar-container { bottom: 20px; right: 20px; }
+            h1 { font-size: 2.5rem !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-40 p-6 md:p-8 flex justify-between items-center mix-blend-difference text-white">
+        <div class="flex flex-col">
+            <span class="text-xl font-bold tracking-widest uppercase">BrijeshPI</span>
+            <span class="text-[0.6rem] tracking-[0.3em] opacity-80 mt-1 uppercase">Precision by Design</span>
+        </div>
+        <nav class="hidden md:block">
+            <a href="#contact" class="text-xs uppercase tracking-[0.2em] hover:text-gray-300 transition">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Floating Brand Seal -->
+    <div id="fixed-avatar-container">
+        <div class="brand-seal">
+            <i class="fa-solid fa-gem"></i>
+        </div>
+    </div>
+
+    <main class="relative">
+
+        <!-- SECTION 1: HERO (Light & Airy) -->
+        <section class="min-h-screen flex flex-col items-center justify-center text-center relative z-20 bg-white">
+            <span class="section-label text-black/50" data-aos="fade-down">Core Identity</span>
+            
+            <h1 class="text-5xl md:text-8xl font-medium mb-6 text-gray-900 leading-tight" data-aos="fade-up" data-aos-delay="100">
+                Digital Precision. <br>
+                <span class="italic serif-font text-gray-800">Intelligent Simplicity.</span>
+            </h1>
+
+            <div class="h-px w-24 bg-gray-300 my-8" data-aos="scale-x" data-aos-delay="200"></div>
+
+            <p class="text-sm md:text-lg text-gray-600 max-w-2xl leading-relaxed tracking-wide font-light px-4" data-aos="fade-up" data-aos-delay="300">
+                BrijeshPI stands for a new class of digital craftsmanship where sophisticated design meets precise engineering.
+            </p>
+
+            <p class="mt-8 text-xs uppercase tracking-[0.2em] text-accent font-semibold" data-aos="fade-up" data-aos-delay="400">
+                Excellence by Design. Intelligence by Nature.
+            </p>
+        </section>
+
+        <!-- SECTION 2: THE STORY (Dark Mode Contrast) -->
+        <section class="py-32 relative z-20 dark-section">
+            <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 50px 50px;"></div>
+            
+            <div class="max-w-5xl mx-auto px-6 relative z-10">
+                <div class="grid md:grid-cols-2 gap-16 items-center">
+                    <div data-aos="fade-right">
+                        <span class="section-label text-white/50">The Narrative</span>
+                        <h2 class="text-4xl md:text-5xl mb-8 leading-tight">European Aesthetics. <br> <span class="italic serif-font text-gray-400">Modern Engineering.</span></h2>
+                        <div class="h-px w-full bg-white/20 mb-8"></div>
+                        <a href="#contact" class="btn-white">Discover More</a>
+                    </div>
+                    
+                    <div class="text-left font-light text-gray-300 leading-relaxed space-y-8" data-aos="fade-left">
+                        <p class="text-lg">
+                            <strong class="text-white">BrijeshPI</strong> was created with one goal: to bring exceptional design and intelligent digital solutions to businesses that value quality. We blend timeless aesthetics with the efficiency of modern engineering.
+                        </p>
+                        <p>
+                            The result is clean, high-performance digital experiences that look iconic and work flawlessly. Every website is crafted with intention. Every brand identity is shaped with meaning.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE PILLARS (Bento Grid Layout) -->
+        <section class="py-32 bg-[#F5F5F7] relative z-20">
+            <div class="container mx-auto px-6">
+                
+                <div class="text-center mb-20" data-aos="fade-up">
+                    <span class="section-label text-black/50">Our Capabilities</span>
+                    <h2 class="text-4xl text-gray-900 serif-font">The 5 Pillars of Excellence</h2>
+                </div>
+
+                <!-- Bento Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    
+                    <!-- Item 1: Large Box (Precision) -->
+                    <div class="bento-card md:col-span-2" data-aos="fade-up" data-aos-delay="0">
+                        <i class="fa-solid fa-crosshairs bento-icon-bg"></i>
+                        <div class="mb-8">
+                            <span class="text-4xl font-serif text-gray-200">01</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl mb-3 font-serif">Precision Engineering</h3>
+                            <p class="text-gray-500 font-light leading-relaxed max-w-md">
+                                Every detail is intentional. Nothing is loud; everything is perfect. We craft with absolute accuracy to ensure flawless performance.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Tall Box (Clarity) -->
+                    <div class="bento-card md:row-span-2 bg-black text-white border-black" data-aos="fade-up" data-aos-delay="100">
+                        <i class="fa-regular fa-eye bento-icon-bg text-gray-800 opacity-20"></i>
+                        <div class="mb-8">
+                            <span class="text-4xl font-serif text-gray-600">02</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl mb-3 font-serif text-white">Visual Clarity</h3>
+                            <p class="text-gray-400 font-light leading-relaxed">
+                                Design and communication stay clean, simple, and powerful. No clutter. No confusion. Just impact.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Standard Box (Integrity) -->
+                    <div class="bento-card" data-aos="fade-up" data-aos-delay="200">
+                        <i class="fa-solid fa-scale-balanced bento-icon-bg"></i>
+                        <div class="mb-8">
+                            <span class="text-4xl font-serif text-gray-200">03</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl mb-2 font-serif">Integrity</h3>
+                            <p class="text-gray-500 font-light text-sm">
+                                Honest work. Honest results. We build trust through transparency.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Standard Box (Innovation) -->
+                    <div class="bento-card" data-aos="fade-up" data-aos-delay="300">
+                        <i class="fa-solid fa-microchip bento-icon-bg"></i>
+                        <div class="mb-8">
+                            <span class="text-4xl font-serif text-gray-200">04</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl mb-2 font-serif">Innovation</h3>
+                            <p class="text-gray-500 font-light text-sm">
+                                Technology used with purpose. AI and modern tech to solve real problems.
+                            </p>
+                        </div>
+                    </div>
+
+                     <!-- Item 5: Wide Box (Refinement) -->
+                     <div class="bento-card md:col-span-3 flex-row items-center justify-between" data-aos="fade-up" data-aos-delay="400">
+                        <div class="z-10 relative max-w-2xl">
+                            <span class="text-4xl font-serif text-gray-200 block mb-4">05</span>
+                            <h3 class="text-2xl mb-3 font-serif">Aesthetic Refinement</h3>
+                            <p class="text-gray-500 font-light leading-relaxed">
+                                A signature calm, polished, minimal style in all we create. Beauty in simplicity.
+                            </p>
+                        </div>
+                        <i class="fa-solid fa-feather bento-icon-bg right-10 top-0"></i>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: VISION & PERSONALITY (Clean Typography) -->
+        <section class="py-32 bg-white relative z-20 border-t border-gray-100">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-2 gap-16">
+                    <div data-aos="fade-up">
+                        <span class="section-label text-black/50">The Personality</span>
+                        <h2 class="text-5xl mb-8 leading-none">Calm.<br>Confident.<br><span class="italic text-gray-400">Minimal.</span></h2>
+                        
+                        <div class="space-y-6 mt-12">
+                            <div class="flex items-start gap-4">
+                                <span class="text-2xl font-serif text-gray-300">01</span>
+                                <p class="text-gray-600 font-light">A modern creative house, exclusive yet welcoming.</p>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <span class="text-2xl font-serif text-gray-300">02</span>
+                                <p class="text-gray-600 font-light">Advanced technology, but never complicated.</p>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <span class="text-2xl font-serif text-gray-300">03</span>
+                                <p class="text-gray-600 font-light">Clear. Smooth. Thoughtful execution.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-12 flex flex-col justify-center border border-gray-100" data-aos="fade-up" data-aos-delay="200">
+                        <span class="section-label text-black/50">Our Vision</span>
+                        <p class="text-2xl leading-relaxed text-gray-900 mb-8 serif-font">
+                            "To become a global benchmark for advanced digital craftsmanship and AI-driven creative technology. Elevating ambitious businesses with intelligent digital systems."
+                        </p>
+                        <div class="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400">
+                            <span>Global</span>
+                            <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            <span>Digital</span>
+                            <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            <span>Future</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer id="contact" class="relative z-20 py-24 bg-[#000000] text-white text-center">
+            <div class="container mx-auto px-4" data-aos="zoom-in">
+                <span class="section-label text-white/50">The Philosophy</span>
+                <h2 class="text-4xl md:text-6xl font-serif italic mb-8 opacity-90">Remove the noise. <br> Keep the essence.</h2>
+                <p class="text-gray-400 mb-12 max-w-xl mx-auto font-light">
+                    Create something timeless with BrijeshPI.
+                </p>
+                <a href="mailto:contact@brijeshpi.com" class="btn-white">
+                    Contact BrijeshPI &rarr;
+                </a>
+                <div class="mt-24 text-[0.6rem] uppercase tracking-[0.3em] text-gray-600">
+                    &copy; 2025 BrijeshPI. All Rights Reserved.
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', once: true });
+
+        // Initialize Lenis
+        if (typeof Lenis !== 'undefined') {
+            const lenis = new Lenis({ duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+            requestAnimationFrame(raf);
+        }
+
+        // Particle Canvas - Refined Edition (Slow, Grey)
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        const isMobile = window.innerWidth < 768;
+        
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initParticles(); }
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.1; this.vy = (Math.random() - 0.5) * 0.1; // Very Slow
+                this.size = Math.random() * 2; this.alpha = Math.random() * 0.2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
+            }
+            draw() { 
+                ctx.fillStyle = `rgba(50, 50, 50, ${this.alpha})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); 
+            }
+        }
+        
+        function initParticles() { particles = []; for (let i = 0; i < (isMobile?20:60); i++) particles.push(new Particle()); }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', resize);
+        resize(); animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Join Flux | B.R.I.J.E.S.H P.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- MINT/EMERALD CAR THEME --- */
+        :root { 
+            --car-accent: #10b981; /* Bright Emerald */
+            --car-dark: #047857;   /* Dark Emerald */
+            --glass-bg: rgba(255, 255, 255, 0.4); /* Light Frosty Glass */
+            --glass-border: rgba(16, 185, 129, 0.3); 
+            --text-main: #064e3b;  /* Very Dark Green Text */
+        }
+        
+        body { 
+            background: #ecfdf5; /* Light Mint Background from photo */
+            color: var(--text-main); 
+            font-family: 'Sora', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            perspective: 1200px; 
+        }
+        
+        /* Road Canvas - Mint Sky */
+        #road-canvas { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
+            background: linear-gradient(to bottom, #ecfdf5 0%, #d1fae5 60%, #064e3b 60%); /* Mint Sky meeting Dark Road */
+        }
+
+        /* --- LIQUID GLASS FLOATING BOX (LIGHT MODE) --- */
+        .mirror-card { 
+            padding: 40px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 30px; 
+            
+            /* Greenish borders */
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(4, 120, 87, 0.1);
+
+            /* Soft Green Shadows */
+            box-shadow: 
+                0 30px 60px rgba(6, 78, 59, 0.15), 
+                inset 0 0 20px rgba(255, 255, 255, 0.5), 
+                0 0 30px rgba(16, 185, 129, 0.1); 
+
+            width: 100%; max-width: 400px; 
+            transform-style: preserve-3d; 
+            animation: slide-up 1s ease-out forwards, float 4s ease-in-out infinite 1s;
+            opacity: 0;
+        }
+        
+        @keyframes slide-up { 
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        h2 { 
+            text-align: center; 
+            font-weight: 900; 
+            margin-bottom: 20px; 
+            color: var(--car-dark); 
+            /* Removed heavy neon shadow for cleaner light look */
+            text-shadow: 0 0 2px rgba(16, 185, 129, 0.4); 
+            letter-spacing: 2px; 
+            font-family: 'JetBrains Mono', monospace; 
+        }
+
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group input { 
+            width: 100%; 
+            background: rgba(255, 255, 255, 0.6); 
+            border: 1px solid rgba(4, 120, 87, 0.1); 
+            color: var(--text-main); 
+            padding: 14px 14px 14px 50px; 
+            border-radius: 12px; 
+            outline: none; 
+            transition: 0.3s; 
+            font-weight: 600;
+        }
+        .input-group input:focus { 
+            border-color: var(--car-accent); 
+            background: #fff; 
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); 
+        }
+        .input-icon { 
+            position: absolute; left: 20px; top: 16px; 
+            color: var(--car-dark); opacity: 0.5; 
+            transition: 0.3s; 
+        }
+        .input-group input:focus ~ .input-icon { color: var(--car-accent); transform: scale(1.1); opacity: 1; }
+        
+        .liquid-btn { 
+            width: 100%; 
+            background: var(--car-dark); 
+            color: #fff; 
+            border: none; padding: 16px; border-radius: 12px; 
+            font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: 0.2s; 
+            text-transform: uppercase; 
+            box-shadow: 0 10px 20px rgba(4, 120, 87, 0.2); 
+            margin-top: 10px;
+        }
+        .liquid-btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 15px 30px rgba(4, 120, 87, 0.3); 
+            background: var(--car-accent); 
+        }
+        .liquid-btn:active { transform: translateY(1px); }
+        
+        .back-link { 
+            display: block; text-align: center; margin-top: 20px; 
+            font-size: 0.8rem; color: var(--car-dark); opacity: 0.7;
+            text-decoration: none; font-weight: 600; transition: 0.3s; cursor: pointer; 
+        }
+        .back-link:hover { color: var(--car-accent); opacity: 1; font-weight: 700; }
+    </style>
+</head>
+<body>
+    
+    <canvas id="road-canvas"></canvas>
+
+    <div class="mirror-card">
+        <h2>START YOUR ENGINE</h2>
+        <form>
+            <div class="input-group" onclick="document.querySelector('input[type=text]').focus()">
+                <input type="text" required placeholder="Driver Name">
+                <i class="fa-solid fa-steering-wheel input-icon"></i>
+            </div>
+            <div class="input-group" onclick="document.querySelector('input[type=email]').focus()">
+                <input type="email" required placeholder="Email Address">
+                <i class="fa-solid fa-envelope input-icon"></i>
+            </div>
+            <div class="input-group" onclick="document.querySelector('input[type=password]').focus()">
+                <input type="password" required placeholder="Create Password">
+                <i class="fa-solid fa-key input-icon"></i>
+            </div>
+            <button type="button" class="liquid-btn" onclick="alert('Account Created! Redirecting...'); window.location.href='login.html'">LAUNCH</button>
+        </form>
+        <a href="login.html" class="back-link">Already have a ride? Login</a>
+    </div>
+
+    <script>
+        /**
+         * 2D MINT CYBER CAR ROAD ANIMATION
+         */
+        const canvas = document.getElementById('road-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        // Car Variables
+        let carX = 0;
+        let carY = 0;
+        let roadLines = [];
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            carX = width / 2;
+            carY = height - 100;
+            
+            // Initialize road markings
+            roadLines = [];
+            for(let i=0; i<10; i++) {
+                roadLines.push({
+                    y: i * 100,
+                    h: 60
+                });
+            }
+        }
+
+        // --- UPDATED GREEN CAR ---
+        function drawCar(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // 1. Underbody Glow (Emerald)
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = "#10b981";
+            ctx.fillStyle = "rgba(16, 185, 129, 0.4)";
+            ctx.beginPath();
+            ctx.ellipse(0, 10, 30, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 2. Tires
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#022c22"; /* Very Dark Green */
+            ctx.fillRect(-50, -10, 15, 30);
+            ctx.fillRect(35, -10, 15, 30);
+
+            // 3. Car Body (Chassis)
+            const bodyGrad = ctx.createLinearGradient(0, -60, 0, 10);
+            bodyGrad.addColorStop(0, "#064e3b");   /* Dark Emerald */
+            bodyGrad.addColorStop(0.4, "#065f46"); 
+            bodyGrad.addColorStop(1, "#022c22");   
+
+            ctx.fillStyle = bodyGrad;
+            
+            // Geometric Shape
+            ctx.beginPath();
+            ctx.moveTo(-45, 10);  
+            ctx.lineTo(45, 10);   
+            ctx.lineTo(40, -20);  
+            ctx.lineTo(30, -50);  
+            ctx.lineTo(-30, -50); 
+            ctx.lineTo(-40, -20); 
+            ctx.closePath();
+            ctx.fill();
+
+            // 4. Neon Body Outline (Bright Emerald)
+            ctx.strokeStyle = "#34d399";
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#10b981";
+            ctx.stroke();
+
+            // 5. Rear Window
+            ctx.fillStyle = "#022c22";
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.moveTo(-25, -45);
+            ctx.lineTo(25, -45);
+            ctx.lineTo(32, -22);
+            ctx.lineTo(-32, -22);
+            ctx.fill();
+
+            // Window Slats
+            ctx.strokeStyle = "rgba(52, 211, 153, 0.3)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-27, -38); ctx.lineTo(27, -38);
+            ctx.moveTo(-29, -32); ctx.lineTo(29, -32);
+            ctx.stroke();
+
+            // 6. Taillights (Keep Red/Pink for safety, or Green?) 
+            // Let's use a reddish-orange for contrast against green
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = "#f59e0b"; /* Amber */
+            ctx.fillStyle = "#f59e0b";
+            ctx.beginPath();
+            ctx.roundRect(-42, -15, 84, 6, 2);
+            ctx.fill();
+            
+            // Brake Lights
+            ctx.fillStyle = "#fbbf24"; 
+            ctx.shadowBlur = 35;
+            ctx.fillRect(-40, -14, 25, 4); 
+            ctx.fillRect(15, -14, 25, 4);  
+
+            // 7. License Plate
+            ctx.fillStyle = "#000";
+            ctx.shadowBlur = 0;
+            ctx.fillRect(-10, 0, 20, 8);
+            
+            ctx.fillStyle = "#10b981";
+            ctx.font = "bold 6px monospace";
+            ctx.textAlign = "center";
+            ctx.fillText("FLUX", 0, 6);
+
+            ctx.restore();
+        }
+
+        function drawRoad() {
+            // Horizon is lower part of screen, Sky is #ecfdf5
+            const horizonY = height * 0.6; // Road starts at 60% height
+            
+            // Road Surface (Dark Emerald Asphalt)
+            ctx.fillStyle = "#064e3b"; 
+            ctx.beginPath();
+            ctx.moveTo(width/2 - 20, horizonY);
+            ctx.lineTo(width/2 + 20, horizonY);
+            ctx.lineTo(width, height);   
+            ctx.lineTo(0, height);       
+            ctx.fill();
+            
+            // Neon Edges (Bright Emerald)
+            ctx.strokeStyle = "#10b981";
+            ctx.lineWidth = 4;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#10b981";
+            ctx.beginPath();
+            ctx.moveTo(width/2 - 20, horizonY);
+            ctx.lineTo(0, height);
+            ctx.moveTo(width/2 + 20, horizonY);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+            ctx.shadowBlur = 0; 
+            
+            // Moving Center Lines
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            roadLines.forEach(line => {
+                // Adjust projection for new horizon
+                const progress = (line.y - horizonY) / (height - horizonY);
+                if(progress > 0 && progress < 1) {
+                    const x = width/2;
+                    ctx.moveTo(x, line.y);
+                    ctx.lineTo(x, line.y + line.h * progress);
+                }
+                line.y += 5 + progress * 15; 
+                if(line.y > height) {
+                    line.y = horizonY;
+                }
+            });
+            ctx.stroke();
+        }
+        
+        function drawCity() {
+             // City Silhouette in Distance (DARKER GREEN for visibility)
+             ctx.fillStyle = "rgba(6, 78, 59, 0.3)"; /* Changed from faint 0.1 to distinct 0.3 dark green */
+             const horizonY = height * 0.6;
+             ctx.beginPath();
+             ctx.moveTo(0, horizonY);
+             let x = 0;
+             while(x < width) {
+                 const buildingW = 20 + Math.random() * 40;
+                 const buildingH = 20 + Math.random() * 80;
+                 ctx.lineTo(x, horizonY - buildingH);
+                 ctx.lineTo(x + buildingW, horizonY - buildingH);
+                 x += buildingW;
+             }
+             ctx.lineTo(width, horizonY);
+             ctx.fill();
+        }
+
+        function animate() {
+            // Fill Background with Mint Sky
+            const grad = ctx.createLinearGradient(0, 0, 0, height);
+            grad.addColorStop(0, "#ecfdf5");
+            grad.addColorStop(0.6, "#d1fae5");
+            grad.addColorStop(0.6, "#064e3b"); // Hard edge for horizon
+            grad.addColorStop(1, "#064e3b");
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,width,height);
+
+            drawCity();
+            drawRoad();
+            const bounce = Math.sin(Date.now() / 100) * 2;
+            drawCar(width/2, height - 100 + bounce);
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+</body>
+</html>

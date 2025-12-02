@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | B.R.I.J.E.S.H P.I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- DARK EMERALD GLASS THEME --- */
+        :root {
+            --bg-dark: #020617; /* Deepest Black/Blue */
+            
+            --text-main: #ffffff;
+            --text-muted: #9ca3af; /* Light Gray Text */
+            
+            /* Dark Glass Settings */
+            --glass-surface: rgba(0, 20, 10, 0.4); 
+            --glass-border: rgba(209, 250, 229, 0.1); /* Pale Green Border */
+            --glass-highlight: rgba(209, 250, 229, 0.3); /* Pale Green Highlight */
+            
+            --accent-neon: #d1fae5; /* Pale Mint Green */
+            --accent-dark: #6ee7b7; /* Soft Mint Green */
+            
+            --cursor-x: 50%;
+            --cursor-y: 50%;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Sora', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            margin: 0;
+            position: relative;
+        }
+
+        /* --- AMBIENT BACKGROUND BLOBS (Dark Aurora) --- */
+        .blob-cont {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #052e16 0%, #000000 100%);
+        }
+        
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite alternate;
+        }
+
+        .blob-1 {
+            width: 600px; height: 600px;
+            background: #d1fae5; /* Pale Green */
+            top: -10%; left: -10%;
+            animation-duration: 25s;
+            opacity: 0.3;
+        }
+
+        .blob-2 {
+            width: 500px; height: 500px;
+            background: #6ee7b7; /* Soft Mint */
+            bottom: -10%; right: -10%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+            opacity: 0.4;
+        }
+
+        .blob-3 {
+            width: 300px; height: 300px;
+            background: #022c22; /* Deep Dark Green */
+            top: 40%; left: 40%;
+            animation-duration: 22s;
+            animation-delay: -10s;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* --- GLOBAL CURSOR GLOW --- */
+        .mouse-glow {
+            pointer-events: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            background: radial-gradient(600px circle at var(--cursor-x) var(--cursor-y), rgba(209, 250, 229, 0.08), transparent 40%);
+        }
+
+        /* --- DARK LIQUID GLASS --- */
+        .liquid-glass {
+            background: var(--glass-surface);
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* Deep shadow */
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Hover Glow Effect */
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+            pointer-events: none;
+        }
+        .liquid-glass:hover::before { left: 150%; }
+
+        .liquid-glass:hover {
+            border-color: var(--accent-neon);
+            box-shadow: 0 0 30px rgba(209, 250, 229, 0.2);
+            transform: translateY(-4px);
+            background: rgba(209, 250, 229, 0.05);
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            width: 80px;
+            background: rgba(0, 10, 5, 0.6); 
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 30px 0; z-index: 50;
+            transition: width 0.5s ease;
+            flex-shrink: 0;
+        }
+        
+        @media(min-width: 768px) {
+            aside { width: 280px; align-items: flex-start; padding: 40px 25px; }
+        }
+
+        /* --- LOGO --- */
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 1.4rem; 
+            margin-bottom: 50px;
+            display: none;
+            letter-spacing: -1px;
+            width: 100%;
+            color: #ffffff; 
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--accent-neon);
+        }
+        @media(min-width: 768px) { .logo { display: block; } }
+        .logo-icon { font-size: 1.8rem; margin-bottom: 40px; color: var(--accent-neon); display: block; }
+        @media(min-width: 768px) { .logo-icon { display: none; } }
+
+        /* --- NAVIGATION --- */
+        .nav-item {
+            display: flex; align-items: center;
+            width: 100%; padding: 16px 20px;
+            color: var(--text-muted); 
+            text-decoration: none; border-radius: 16px;
+            margin-bottom: 8px;
+            transition: all 0.4s ease; 
+            position: relative;
+            z-index: 10;
+            font-weight: 600; 
+            cursor: pointer;
+        }
+        
+        .nav-item:hover { 
+            color: #fff; 
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 255, 0, 0.2) 0%, rgba(0, 255, 0, 0) 100%);
+            color: var(--accent-neon);
+            border-left: 3px solid var(--accent-neon);
+            border-radius: 4px 16px 16px 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .nav-item i { font-size: 1.2rem; width: 24px; text-align: center; margin-right: 15px; }
+        .nav-item span { display: none; letter-spacing: 0.5px; }
+        @media(min-width: 768px) { .nav-item span { display: block; } }
+
+        /* --- MAIN AREA --- */
+        main {
+            flex: 1; position: relative;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .content-section {
+            display: none; width: 100%; height: 100%;
+            padding: 20px; overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s ease; 
+        }
+        @media(min-width: 768px) { .content-section { padding: 50px; } }
+        
+        .content-section.active-section { display: block; opacity: 1; animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); } 
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 3rem; font-weight: 800; margin-bottom: 10px; color: #fff; letter-spacing: -1px; line-height: 1; }
+        .subtitle { font-size: 1.1rem; color: var(--text-muted); font-weight: 400; margin-bottom: 40px; }
+
+        /* --- BUTTONS --- */
+        .btn-liquid {
+            position: relative;
+            padding: 12px 30px;
+            background: var(--accent-neon);
+            color: #000;
+            border-radius: 30px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            box-shadow: 0 0 20px rgba(209, 250, 229, 0.4);
+        }
+        .btn-liquid:hover { transform: scale(1.05); background: #fff; box-shadow: 0 0 40px rgba(209, 250, 229, 0.6); }
+
+        /* --- CHAT UX --- */
+        .chat-container {
+            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            height: calc(100vh - 250px);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .msg-bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #ddd;
+            border-radius: 18px 18px 18px 4px;
+        }
+        .msg-user {
+            background: linear-gradient(135deg, #6ee7b7, #d1fae5);
+            color: #000; /* Dark text for better contrast on light green */
+            font-weight: 600;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 5px 15px rgba(209, 250, 229, 0.3);
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        /* FEED STYLES */
+        .feed-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+            opacity: 0.9;
+            transition: 0.3s;
+        }
+        .feed-img:hover { opacity: 1; border-color: var(--accent-neon); }
+        
+        .stat-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
+        .stat-value { color: #fff; font-size: 1.875rem; font-weight: 800; text-shadow: 0 0 20px rgba(209, 250, 229, 0.2); }
+
+        /* STATUS BADGE */
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        .status-processing {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND BLOBS (Dark Aesthetic) -->
+    <div class="blob-cont">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- MOUSE FOLLOWER -->
+    <div class="mouse-glow" id="mouse-glow"></div>
+
+    <aside>
+        <div class="logo">B.R.I.J.E.S.H P.I</div>
+        <i class="fa-solid fa-bolt logo-icon"></i>
+
+        <nav class="w-full flex flex-col gap-2">
+            <div class="nav-item active" onclick="showSection('explore')">
+                <i class="fa-solid fa-compass"></i>
+                <span>Explore</span>
+            </div>
+
+            <div class="nav-item" onclick="showSection('help')">
+                <i class="fa-solid fa-headset"></i>
+                <span>Help Center</span>
+            </div>
+
+            <div class="nav-item" onclick="showSection('orders')">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Orders</span>
+            </div>
+            
+            <div class="nav-item" onclick="showSection('profile')">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+
+        <div style="margin-top: auto; width: 100%;">
+            <a href="#" class="nav-item text-red-400 hover:text-red-300">
+                <i class="fa-solid fa-power-off"></i>
+                <span>Disconnect</span>
+            </a>
+        </div>
+    </aside>
+
+    <main>
+        
+        <div id="explore" class="content-section active-section">
+            <h1>Explore</h1>
+            <p class="subtitle">Real-time system analytics and company news feed.</p>
+            
+            <!-- Quick Stats Row (Dark Glass) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="liquid-glass p-6 rounded-2xl flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="p-3 bg-white/5 rounded-xl border border-white/10"><i class="fa-solid fa-signal text-green-400"></i></div>
+                        <span class="text-xs font-mono text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-500/10">LIVE</span>
+                    </div>
+                    <div>
+                        <h3 class="stat-label">Active Nodes</h3>
+                        <p class="stat-value">14</p>
+                    </div>
+                </div>
+                <div class="liquid-glass p-6 rounded-2xl flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="p-3 bg-white/5 rounded-xl border border-white/10"><i class="fa-solid fa-eye text-emerald-400"></i></div>
+                        <span class="text-xs font-mono text-gray-400">24H</span>
+                    </div>
+                    <div>
+                        <h3 class="stat-label">Impressions</h3>
+                        <p class="stat-value">2.4M</p>
+                    </div>
+                </div>
+                <div class="liquid-glass p-6 rounded-2xl flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="p-3 bg-white/5 rounded-xl border border-white/10"><i class="fa-solid fa-server text-lime-400"></i></div>
+                    </div>
+                    <div>
+                        <h3 class="stat-label">Network Load</h3>
+                        <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden mt-2 border border-white/5">
+                            <div class="bg-gradient-to-r from-green-600 to-emerald-400 h-full w-[45%] shadow-[0_0_10px_rgba(209,250,229,0.5)]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEED SECTION -->
+            <div class="flex flex-col gap-8 max-w-3xl mx-auto pb-20">
+                <h2 class="text-2xl font-bold text-white border-l-4 border-green-500 pl-4">System Feed</h2>
+
+                <!-- Post 1 -->
+                <div class="liquid-glass p-8 rounded-3xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white text-xl shadow-lg shadow-green-900/50">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Flux Labs R&D</h3>
+                            <p class="text-xs text-gray-400">2 hours ago • <i class="fa-solid fa-earth-americas"></i> Public</p>
+                        </div>
+                        <div class="ml-auto text-gray-500"><i class="fa-solid fa-ellipsis"></i></div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        <span class="text-green-400 font-bold">#Invention</span> Introducing the <span class="text-white font-bold">Quantum-Link V2</span>. 
+                        Optimization level: Maximum.
+                    </p>
+                    <img src="https://picsum.photos/seed/tech1/800/400" alt="Invention" class="feed-img">
+                    <div class="flex gap-6 pt-2 border-t border-white/10 text-gray-400 text-sm font-semibold">
+                        <span class="hover:text-green-400 cursor-pointer"><i class="fa-regular fa-thumbs-up"></i> 1,204 Likes</span>
+                        <span class="hover:text-green-400 cursor-pointer"><i class="fa-regular fa-comment"></i> 84 Comments</span>
+                        <span class="ml-auto hover:text-green-400 cursor-pointer"><i class="fa-solid fa-share-nodes"></i> Share</span>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="liquid-glass p-8 rounded-3xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-2xl shadow-sm">
+                            <i class="fa-brands fa-linkedin"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Brijesh P.I Official</h3>
+                            <p class="text-xs text-gray-400">5 hours ago • Promoted</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        We are thrilled to be recognized as the <span class="font-bold text-green-400">Top Cybersecurity Innovator of 2025</span>! 🏆 
+                    </p>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-4 flex items-center gap-4">
+                        <div class="w-16 h-16 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-400 text-3xl border border-yellow-500/30">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white">Global Tech Awards 2025</h4>
+                            <p class="text-xs text-gray-400">San Francisco, CA</p>
+                        </div>
+                        <button class="ml-auto px-4 py-2 bg-green-600 text-white rounded-full text-xs font-bold hover:bg-green-500 transition shadow-lg shadow-green-900/50">Read More</button>
+                    </div>
+                </div>
+
+                <!-- Post 4 -->
+                <div class="liquid-glass p-8 rounded-3xl border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)]">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-green-400 text-xl border border-green-500/30">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Product Launch</h3>
+                            <p class="text-xs text-gray-400">Just now</p>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-200 mb-4">
+                        TITAN FIREWALL X
+                    </h2>
+                    <p class="text-gray-300 mb-6 font-medium">
+                        The ultimate defense for your enterprise infrastructure.
+                    </p>
+                    <button class="w-full py-4 bg-white text-black font-bold rounded-xl hover:scale-[1.02] transition shadow-lg">
+                        GET ACCESS ->
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="help" class="content-section">
+            <h1>Support</h1>
+            <p class="subtitle">Secure automated assistance.</p>
+
+            <div class="chat-container liquid-glass">
+                <div class="flex-1 p-6 overflow-y-auto flex flex-col gap-4" id="chat-box">
+                    <div class="msg-bot p-4 self-start max-w-[80%] text-sm leading-relaxed shadow-sm">
+                        Hello! I am your personal AI assistant. <br>
+                        System status is normal. How can I assist you?
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-black/20 border-t border-white/10 flex gap-3 items-center backdrop-blur-md">
+                    <input type="text" id="user-input" 
+                           class="flex-1 bg-white/10 border border-white/20 rounded-full px-6 py-3 text-white focus:outline-none focus:border-green-500 transition text-sm font-mono placeholder-gray-500 font-medium" 
+                           placeholder="Enter command..." onkeypress="handleEnter(event)">
+                    <button class="w-12 h-12 bg-green-500 text-black rounded-full flex items-center justify-center hover:scale-110 transition shadow-lg shadow-green-500/50" onclick="sendMessage()">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW ORDERS SECTION -->
+        <div id="orders" class="content-section">
+            <h1>Orders</h1>
+            <p class="subtitle">Track your recent product requests.</p>
+
+            <div class="flex flex-col gap-6 max-w-4xl mx-auto">
+                <!-- Order Card 1 -->
+                <div class="liquid-glass p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:bg-white/5 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
+                            <i class="fa-solid fa-box text-2xl text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white mb-1">Product Request #4928</h3>
+                            <p class="text-sm text-gray-400">CyberShield Enterprise License x5</p>
+                            <div class="mt-2 text-xs text-gray-500 flex items-center gap-2">
+                                <i class="fa-regular fa-clock"></i> Requested 2 days ago
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-3 w-full md:w-auto">
+                        <span class="status-badge status-processing">Processing</span>
+                        <button class="text-sm text-green-400 hover:text-white transition font-semibold">View Details</button>
+                    </div>
+                </div>
+
+                <!-- Order Card 2 -->
+                <div class="liquid-glass p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:bg-white/5 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
+                            <i class="fa-solid fa-microchip text-2xl text-emerald-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white mb-1">Product Request #4921</h3>
+                            <p class="text-sm text-gray-400">Quantum Node Server Rack</p>
+                            <div class="mt-2 text-xs text-gray-500 flex items-center gap-2">
+                                <i class="fa-regular fa-clock"></i> Requested 5 days ago
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-3 w-full md:w-auto">
+                        <span class="status-badge status-pending">Pending Approval</span>
+                        <button class="text-sm text-green-400 hover:text-white transition font-semibold">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile" class="content-section">
+            <h1>Profile</h1>
+            <p class="subtitle">User identity and configuration.</p>
+            
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Profile Left -->
+                <div class="liquid-glass p-10 rounded-3xl flex flex-col items-center text-center w-full lg:w-1/3">
+                    <div class="relative mb-6">
+                        <div class="absolute inset-0 bg-green-500/30 blur-2xl rounded-full opacity-50"></div>
+                        <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Brijesh" alt="Avatar" class="w-32 h-32 rounded-full border-2 border-white/20 relative z-10 bg-black/50 shadow-xl">
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-white mb-1">Brijesh P.I</h2>
+                    <p class="text-green-400 font-mono text-xs tracking-widest uppercase mb-6 font-bold">Admin Access</p>
+                    
+                    <div class="flex gap-4 w-full justify-center mb-8 text-white">
+                        <div class="text-center">
+                            <div class="text-xl font-bold">85</div>
+                            <div class="text-xs text-gray-400 uppercase font-bold">Projects</div>
+                        </div>
+                        <div class="w-px bg-white/10 h-10"></div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold">12</div>
+                            <div class="text-xs text-gray-400 uppercase font-bold">Teams</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-liquid w-full">Edit Profile</button>
+                </div>
+
+                <!-- Profile Right -->
+                <div class="liquid-glass p-10 rounded-3xl flex-1">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fa-regular fa-id-card text-green-400"></i> Details
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+                        <div class="group">
+                            <label class="text-gray-500 text-xs uppercase tracking-wider mb-2 block group-hover:text-green-400 transition font-bold">Email</label>
+                            <div class="text-white text-lg border-b border-white/10 pb-2 group-hover:border-green-500 transition font-medium">brijesh@flux.net</div>
+                        </div>
+                        <div class="group">
+                            <label class="text-gray-500 text-xs uppercase tracking-wider mb-2 block group-hover:text-green-400 transition font-bold">Phone</label>
+                            <div class="text-white text-lg border-b border-white/10 pb-2 group-hover:border-green-500 transition font-medium">+1 (555) 019-2834</div>
+                        </div>
+                        <div class="group">
+                            <label class="text-gray-500 text-xs uppercase tracking-wider mb-2 block group-hover:text-green-400 transition font-bold">Location</label>
+                            <div class="text-white text-lg border-b border-white/10 pb-2 group-hover:border-green-500 transition font-medium">Cyber City, Sector 7</div>
+                        </div>
+                        <div class="group">
+                            <label class="text-gray-500 text-xs uppercase tracking-wider mb-2 block group-hover:text-green-400 transition font-bold">Role</label>
+                            <div class="text-white text-lg border-b border-white/10 pb-2 group-hover:border-green-500 transition font-medium">Lead Architect</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 p-4 rounded-xl bg-white/5 border border-white/10 flex items-start gap-4 shadow-sm">
+                        <i class="fa-solid fa-circle-info text-green-400 mt-1"></i>
+                        <p class="text-sm text-gray-300 leading-relaxed font-medium">
+                            Your account security check is scheduled for tomorrow. Please ensure all encryption keys are updated.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- MOUSE GLOW LOGIC ---
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            document.documentElement.style.setProperty('--cursor-x', x + 'px');
+            document.documentElement.style.setProperty('--cursor-y', y + 'px');
+        });
+
+        // --- NAVIGATION LOGIC ---
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active-section'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(sectionId).classList.add('active-section');
+            const navItem = event.currentTarget || event.target.closest('.nav-item');
+            if(navItem) navItem.classList.add('active');
+        }
+
+        // --- CHAT LOGIC ---
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            const chatBox = document.getElementById('chat-box');
+
+            if (message) {
+                const userMsgDiv = document.createElement('div');
+                userMsgDiv.className = 'msg-user p-4 self-end max-w-[80%] text-sm shadow-lg animate-fade-in';
+                userMsgDiv.textContent = message;
+                chatBox.appendChild(userMsgDiv);
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                setTimeout(() => {
+                    const botMsgDiv = document.createElement('div');
+                    botMsgDiv.className = 'msg-bot p-4 self-start max-w-[80%] text-sm leading-relaxed animate-fade-in';
+                    botMsgDiv.textContent = "Processing request... Access granted.";
+                    chatBox.appendChild(botMsgDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 800);
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+
+</body>
+</html>
