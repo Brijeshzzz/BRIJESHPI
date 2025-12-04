@@ -1,40 +1,34 @@
 from flask import Flask, render_template, request, redirect, session
 
 app = Flask(__name__, static_folder="../frontend", template_folder="../frontend")
-app.secret_key = "change-this-secret-key"  # needed for sessions
+app.secret_key = "change-this-secret-key"
 
-# dummy user for now
-USER = {"email": "brijeshpi@gmail.com", "password": "psycho"}
+# updated user credentials
+USER = {"email": "brijeshpinfinity@gmail.com", "password": "psycho@123"}
 
 
 @app.route("/")
 def home():
-    # show your main landing page
     return app.send_static_file("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # read form values
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "")
 
-        # check against dummy user
         if email == USER["email"] and password == USER["password"]:
             session["user"] = email
             return redirect("/dashboard.html")
 
-        # wrong credentials → stay on login
         return redirect("/login")
 
-    # GET request → show login page
     return render_template("login.html")
 
 
 @app.route("/dashboard.html")
 def dashboard():
-    # protect dashboard
     if "user" not in session:
         return redirect("/login")
     return app.send_static_file("dashboard.html")
@@ -43,6 +37,68 @@ def dashboard():
 @app.route("/logout")
 def logout():
     session.pop("user", None)
+    return redirect("/login")
+
+
+# ========= Static pages =========
+
+@app.route("/forgot-password.html")
+def forgot_password_page():
+    return app.send_static_file("forgot-password.html")
+
+
+@app.route("/forgotpasswordotp.html")
+def otp_page():
+    return app.send_static_file("forgotpasswordotp.html")
+
+
+@app.route("/reset-password.html")
+def reset_password_page():
+    return app.send_static_file("reset-password.html")
+
+
+# ========= Forgot password + OTP =========
+
+@app.route("/send-otp", methods=["POST"])
+def send_otp():
+    email = request.form.get("email", "").strip()
+
+    if email != USER["email"]:
+        return redirect("/forgot-password.html")
+
+    otp = 123456
+    session["otp"] = otp
+    print("DEBUG OTP (for testing):", otp)
+
+    return redirect("/forgotpasswordotp.html")
+
+
+@app.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    user_otp = request.form.get("otp")
+    real_otp = session.get("otp")
+
+    if real_otp is not None and user_otp == str(real_otp):
+        return redirect("/reset-password.html")
+    else:
+        return redirect("/forgotpasswordotp.html")
+
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "GET":
+        return render_template("reset-password.html")
+
+    new_pass = request.form.get("password")
+    confirm_pass = request.form.get("confirm")
+
+    if new_pass != confirm_pass:
+        return redirect("/reset-password.html")
+
+    USER["password"] = new_pass
+    print("Password updated for", USER["email"], "=>", new_pass)
+
+    session.pop("otp", None)
     return redirect("/login")
 
 
