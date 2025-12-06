@@ -1,16 +1,31 @@
-<!-- orders.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders - BrijeshPi Admin</title>
+    <!-- EXACT CSS LINK FROM DASHBOARD -->
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+    <style>
+        /* Inline styles to match table layout perfectly */
+        .table-container { margin-top: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: #888; }
+        tr:hover { background-color: #fcfcfc; }
+        .btn { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; }
+        .btn-complete { background-color: #007aff; color: white; }
+        .badge-progress { background-color: #ffcc00; color: black; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .badge-done { background-color: #34c759; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+    </style>
 </head>
 <body>
 
+    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="brand"><span>BrijeshPi Admin</span></div>
+        <div class="brand">
+            <span>BrijeshPi Admin</span>
+        </div>
         <ul class="nav-links">
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
@@ -22,53 +37,64 @@
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
         <header class="header">
-            <h1 class="page-title">Orders</h1>
-            <input type="text" placeholder="Search Order ID..." 
-                   style="padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; width: 250px;">
+            <h1 class="page-title">Active Orders</h1>
+            <div class="user-profile">
+                <span style="font-weight: 500;">Admin</span>
+            </div>
         </header>
 
-        <section class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#ORD-4920</td>
-                        <td>Michael Scott</td>
-                        <td>Oct 24, 2023</td>
-                        <td>$129.00</td>
-                        <td><span class="badge shipped">Shipped</span></td>
-                        <td><button class="action-btn">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>#ORD-4921</td>
-                        <td>Dwight Schrute</td>
-                        <td>Oct 24, 2023</td>
-                        <td>$45.50</td>
-                        <td><span class="badge pending">Pending</span></td>
-                        <td><button class="action-btn">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>#ORD-4922</td>
-                        <td>Jim Halpert</td>
-                        <td>Oct 23, 2023</td>
-                        <td>$299.00</td>
-                        <td><span class="badge active">Delivered</span></td>
-                        <td><button class="action-btn">View</button></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Orders Table Section -->
+        <section class="card" style="min-height: 500px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom: 20px;">Current Job Status</h3>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td><strong>{{ order.client_name }}</strong></td>
+                            <td>{{ order.service_type }}</td>
+                            <td>
+                                {% if order.status == 'Accepted' %}
+                                <span class="badge-progress">In Progress</span>
+                                {% else %}
+                                <span class="badge-done">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td style="color: #666;">{{ order.budget }}</td>
+                            <td>
+                                {% if order.status == 'Accepted' %}
+                                <a href="/admin/complete/{{ order.id }}" class="btn btn-complete">Mark Completed</a>
+                                {% else %}
+                                <span style="color: #34c759; font-weight: bold;">Done</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #999;">No active orders.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
+
+    <script src="{{ url_for('admin.static', filename='admin/js/app.js') }}"></script>
 </body>
 </html>

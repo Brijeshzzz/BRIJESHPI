@@ -4,11 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Requests - BrijeshPi Admin</title>
+    <!-- EXACT CSS LINK FROM DASHBOARD -->
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+    <style>
+        /* Inline styles to match table layout perfectly */
+        .table-container { margin-top: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: #888; }
+        tr:hover { background-color: #fcfcfc; }
+        .btn { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; margin-right: 5px; }
+        .btn-accept { background-color: #34c759; color: white; }
+        .btn-reject { background-color: #ff3b30; color: white; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; background: #eee; color: #333; font-weight: 500; }
+    </style>
 </head>
 <body>
+
+    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="brand"><span>BrijeshPi Admin</span></div>
+        <div class="brand">
+            <span>BrijeshPi Admin</span>
+        </div>
         <ul class="nav-links">
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ url_for('admin.requests') }}" class="active">Service Requests</a></li>
@@ -19,54 +36,58 @@
             <li style="margin-top: 20px;"><a href="/logout" style="color: #ff3b30;">Logout</a></li>
         </ul>
     </aside>
+
+    <!-- Main Content -->
     <main class="main-content">
         <header class="header">
             <h1 class="page-title">Service Requests</h1>
-            <div class="header-actions">
-                <input type="text" placeholder="Search requests..." style="padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; width: 250px;">
-                <button class="btn-primary" style="width: auto; padding: 0 20px;">+ New Request</button>
+            <div class="user-profile">
+                <span style="font-weight: 500;">Admin</span>
             </div>
         </header>
-        <section class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Service Type</th>
-                        <th>Budget</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in requests %}
-                    <tr>
-                        <td>
-                            <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%; background: #e3f2fd; color:#0071e3; display:flex; align-items:center; justify-content:center; font-weight:bold;">
-                                    {{ req.client_name[0] | upper }}
-                                </div>
-                                <div>
-                                    <div style="font-weight: 500;">{{ req.client_name }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>{{ req.service_type }}</td>
-                        <td>{{ req.budget }}</td>
-                        <td>{{ req.date }}</td>
-                        <td><span class="badge pending">{{ req.status }}</span></td>
-                        <td>
-                            <button class="action-btn">Accept</button>
-                            <button class="action-btn delete">Reject</button>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="6" style="text-align:center; padding: 20px;">No requests found.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+        <!-- Requests Table Section -->
+        <section class="card" style="min-height: 500px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom: 20px;">New Incoming Requests</h3>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Phone</th>
+                            <th>Details</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>#{{ req.id }}</td>
+                            <td><strong>{{ req.client_name }}</strong></td>
+                            <td><span class="badge">{{ req.service_type }}</span></td>
+                            <td>{{ req.phone }}</td>
+                            <td style="color: #666; max-width: 250px;">{{ req.budget }}</td>
+                            <td>{{ req.date }}</td>
+                            <td>
+                                <a href="/admin/accept/{{ req.id }}" class="btn btn-accept">Accept</a>
+                                <a href="/admin/reject/{{ req.id }}" class="btn btn-reject">Reject</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #999;">No new service requests found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
+
+    <script src="{{ url_for('admin.static', filename='admin/js/app.js') }}"></script>
 </body>
 </html>

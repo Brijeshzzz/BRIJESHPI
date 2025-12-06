@@ -8,6 +8,7 @@ import json
 import urllib.parse
 from groq import Groq
 
+# REVERTED TO ORIGINAL WORKING PATHS
 app = Flask(__name__, static_folder="frontend", template_folder="frontend")
 app.secret_key = "change-this-secret-key"
 
@@ -32,22 +33,56 @@ class ServiceRequest(db.Model):
     date = db.Column(db.String(50))
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates', static_folder='static', url_prefix='/admin')
+
 @admin_bp.route('/')
 def admin_login(): return render_template('admin/index.html')
+
 @admin_bp.route('/dashboard')
 def dashboard(): return render_template('admin/dashboard.html')
+
 @admin_bp.route('/requests')
 def requests():
-    all_requests = ServiceRequest.query.order_by(ServiceRequest.id.desc()).all()
-    return render_template('admin/requests.html', requests=all_requests)
+    # Show 'New Booking' requests
+    requests = ServiceRequest.query.filter(ServiceRequest.status == 'New Booking').order_by(ServiceRequest.id.desc()).all()
+    return render_template('admin/requests.html', requests=requests)
+
+@admin_bp.route('/accept/<int:request_id>')
+def accept_request(request_id):
+    req = ServiceRequest.query.get(request_id)
+    if req:
+        req.status = 'Accepted'
+        db.session.commit()
+    return redirect(url_for('admin.requests'))
+
+@admin_bp.route('/reject/<int:request_id>')
+def reject_request(request_id):
+    req = ServiceRequest.query.get(request_id)
+    if req:
+        req.status = 'Rejected'
+        db.session.commit()
+    return redirect(url_for('admin.requests'))
+
 @admin_bp.route('/orders')
-def orders(): return render_template('admin/orders.html')
+def orders():
+    # Show 'Accepted' or 'Completed' orders
+    orders = ServiceRequest.query.filter(ServiceRequest.status.in_(['Accepted', 'Completed'])).order_by(ServiceRequest.id.desc()).all()
+    return render_template('admin/orders.html', orders=orders)
+
+@admin_bp.route('/complete/<int:request_id>')
+def complete_order(request_id):
+    req = ServiceRequest.query.get(request_id)
+    if req:
+        req.status = 'Completed'
+        db.session.commit()
+    return redirect(url_for('admin.orders'))
+
 @admin_bp.route('/users')
 def users(): return render_template('admin/users.html')
 @admin_bp.route('/marketing')
 def marketing(): return render_template('admin/marketing.html')
 @admin_bp.route('/settings')
 def settings(): return render_template('admin/settings.html')
+
 app.register_blueprint(admin_bp)
 
 app.config["MAIL_SERVER"] = "sandbox.smtp.mailtrap.io"
@@ -137,7 +172,6 @@ def chat():
                     👇 <b>Click below to confirm on WhatsApp:</b><br>
                     <a href='{wa_url}' target='_blank' style='display:inline-block; padding:10px 20px; background-color:#25D366; color:white; text-decoration:none; border-radius:5px; margin-top:10px;'>Open WhatsApp</a>
                     """
-                    
                     session.pop("chat_history", None)
                 else:
                     final_reply = "Error: AI format incorrect. Please type 'CONFIRM' to try again."
