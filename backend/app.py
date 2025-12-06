@@ -1,14 +1,55 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, Blueprint, url_for
 from flask_mail import Mail, Message
 import random
 import os
 import urllib.parse
 from groq import Groq
 
+# 1. Initialize Main App (Frontend)
 app = Flask(__name__, static_folder="../frontend", template_folder="../frontend")
 app.secret_key = "change-this-secret-key"
 
-# ========= SMTP CONFIG (MAILTRAP SANDBOX) =========
+# ==========================================
+# ⭐ NEW: ADMIN PANEL CONFIGURATION (Blueprint)
+# ==========================================
+admin_bp = Blueprint('admin', __name__, 
+                     template_folder='../templates',
+                     static_folder='../static',
+                     url_prefix='/admin')
+
+@admin_bp.route('/')
+def admin_login():
+    return render_template('admin/index.html')
+
+@admin_bp.route('/dashboard')
+def dashboard():
+    return render_template('admin/dashboard.html')
+
+@admin_bp.route('/requests')
+def requests():
+    return render_template('admin/requests.html')
+
+@admin_bp.route('/orders')
+def orders():
+    return render_template('admin/orders.html')
+
+@admin_bp.route('/users')
+def users():
+    return render_template('admin/users.html')
+
+@admin_bp.route('/marketing')
+def marketing():
+    return render_template('admin/marketing.html')
+
+@admin_bp.route('/settings')
+def settings():
+    return render_template('admin/settings.html')
+
+app.register_blueprint(admin_bp)
+# ==========================================
+
+
+# ========= SMTP CONFIG =========
 app.config["MAIL_SERVER"] = "sandbox.smtp.mailtrap.io"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
@@ -18,117 +59,78 @@ app.config["MAIL_PASSWORD"] = "52a38fe57090d2"
 app.config["MAIL_DEFAULT_SENDER"] = "no-reply@brijeshpi.com"
 
 mail = Mail(app)
-
-# ========= Groq Client =========
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Dummy user
 USER = {"email": "brijeshpinfinity@gmail.com", "password": "psycho@123"}
 
-
-# ========= Chatbot Route (With Memory & WhatsApp Link) =========
+# ========= Chatbot Route =========
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
     if not user_message:
         return jsonify({"reply": "Please type a message."})
 
-    # 1. Get or Initialize History
     if "chat_history" not in session:
         session["chat_history"] = []
-
-    # 2. Append User Message
     session["chat_history"].append({"role": "user", "content": user_message})
-    
-    # 3. Limit History Size
     if len(session["chat_history"]) > 15:
         session["chat_history"] = session["chat_history"][-15:]
 
     try:
-        # System Prompt - Booking Agent with WhatsApp Link Generation
         system_prompt = """
         You are the BrijeshPI Service Booking Agent.
         Your Job: Collect these 8 details from the user ONE BY ONE.
-        
-        Current Information Status:
-        (Remember what the user has already told you in this conversation history)
-
-        Required Details:
-        1. Full Name
-        2. Phone Number
-        3. Service Type
-        4. Issue Description
-        5. Urgency (Normal/Urgent)
-        6. Address & Landmark
-        7. City & Pincode
-        8. Preferred Time
-        
-        RULES:
-        - Check the conversation history. If the user ALREADY gave a detail, DO NOT ask for it again.
-        - Ask only ONE question at a time.
-        - If the user answers multiple things, accept them and ask for what is MISSING.
-        
-        FINAL OUTPUT FORMAT:
-        When ALL 8 details are collected and the user says YES/Confirm, output exactly this:
-        
-        New Service Request
-        Name: [Name]
-        Phone: [Phone]
-        Service: [Service]
-        Issue: [Issue]
-        Urgency: [Urgency]
-        Address: [Address]
-        City: [City]
-        Time: [Time]
-        Booking Confirmation: YES
-        
-        [Click here to Send to WhatsApp](https://wa.me/919944653073?text=New%20Service%20Request%0A-------------------%0AName:%20[Name]%0APhone:%20[Phone]%0AService:%20[Service]%0AIssue:%20[Issue]%0AUrgency:%20[Urgency]%0AAddress:%20[Address]%0ACity:%20[City]%0ATime:%20[Time])
         """
-
-        # 4. Construct Messages
         messages_to_send = [{"role": "system", "content": system_prompt}] + session["chat_history"]
-
-        # Call Groq model
         chat_completion = groq_client.chat.completions.create(
             messages=messages_to_send,
             model="llama-3.3-70b-versatile",
             temperature=0.6
         )
-        
         ai_reply = chat_completion.choices[0].message.content
-        
-        # 5. Append AI Reply to History & Save
         session["chat_history"].append({"role": "assistant", "content": ai_reply})
         session.modified = True
-
         return jsonify({"reply": ai_reply})
     except Exception as e:
         print("Groq Error:", e)
         return jsonify({"reply": "Sorry, I am having trouble connecting right now."}), 500
 
 
-# ========= Existing Routes =========
+# ========= Existing Frontend Routes =========
 @app.route("/")
 def home():
     return app.send_static_file("index.html")
 
+# THIS IS THE USER DASHBOARD ROUTE
+@app.route("/dashboard.html")
+def user_dashboard():
+    if "user" not in session:
+        return redirect("/login")
+    return app.send_static_file("dashboard.html")
+
+
+# ⭐⭐⭐ FIXED LOGIN LOGIC ⭐⭐⭐
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "")
-        if email == USER["email"] and password == USER["password"]:
+
+        # 1. ADMIN CHECK
+        if email == "admin@brijeshpi.com" and password == "admin123":
+            session["user"] = "admin"
+            return redirect("/admin/dashboard") 
+
+        # 2. NORMAL USER CHECK
+        elif email == USER["email"] and password == USER["password"]:
             session["user"] = email
             session.pop("chat_history", None) 
-            return redirect("/dashboard.html")
+            return redirect("/dashboard.html") # Go to USER dashboard
+            
         return redirect("/login")
     return render_template("login.html")
 
-@app.route("/dashboard.html")
-def dashboard():
-    if "user" not in session:
-        return redirect("/login")
-    return app.send_static_file("dashboard.html")
 
 @app.route("/logout")
 def logout():

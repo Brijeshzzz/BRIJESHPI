@@ -1,0 +1,67 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BrijeshPi Admin</title>
+    <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <span>BrijeshPi Admin</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin.dashboard') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
+            <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
+            <li><a href="{{ url_for('admin.users') }}">Users</a></li>
+            <li><a href="{{ url_for('admin.marketing') }}">Marketing</a></li>
+            <li><a href="{{ url_for('admin.settings') }}">Settings</a></li>
+            <li style="margin-top: 20px;"><a href="index.html" style="color: #ff3b30;">Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h1 class="page-title">Overview</h1>
+            <div class="user-profile">
+                <!-- Placeholder for Admin Profile Pic/Name -->
+                <span style="font-weight: 500;">Admin</span>
+            </div>
+        </header>
+
+        <!-- Analytics Cards -->
+        <section class="stats-grid">
+            <div class="card">
+                <h3>Total Sales</h3>
+                <div class="number">$12,450</div>
+            </div>
+            <div class="card">
+                <h3>Active Orders</h3>
+                <div class="number">45</div>
+            </div>
+            <div class="card">
+                <h3>Total Users</h3>
+                <div class="number">1,208</div>
+            </div>
+            <div class="card">
+                <h3>Site Visitors</h3>
+                <div class="number">890</div>
+            </div>
+        </section>
+
+        <!-- Recent Activity Section (Placeholder) -->
+        <section class="card" style="min-height: 300px;">
+            <h3>Recent Orders</h3>
+            <p style="color: var(--text-secondary); margin-top: 10px;">No recent orders to display.</p>
+        </section>
+    </main>
+
+    <script src="{{ url_for('admin.static', filename='admin/js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!-- settings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - BrijeshPi Admin</title>
+    <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand"><span>BrijeshPi Admin</span></div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
+            <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
+            <li><a href="{{ url_for('admin.users') }}">Users</a></li>
+            <li><a href="{{ url_for('admin.marketing') }}">Marketing</a></li>
+            <li><a href="{{ url_for('admin.settings') }}" class="active">Settings</a></li>
+            <li style="margin-top: 20px;"><a href="index.html" style="color: #ff3b30;">Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1 class="page-title">Settings</h1>
+        </header>
+
+        <div style="max-width: 600px;">
+            
+            <!-- Admin Profile -->
+            <section class="card" style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 20px; font-size: 16px; color: #1d1d1f;">Profile Settings</h3>
+                <form>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex: 1;">
+                            <label>First Name</label>
+                            <input type="text" value="Brijesh">
+                        </div>
+                        <div class="input-group" style="flex: 1;">
+                            <label>Last Name</label>
+                            <input type="text" value="Pi">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" value="admin@brijeshpi.com">
+                    </div>
+                    <button class="btn-primary" style="width: auto;">Save Changes</button>
+                </form>
+            </section>
+
+            <!-- Security -->
+            <section class="card" style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 20px; font-size: 16px; color: #1d1d1f;">Security</h3>
+                <div class="input-group">
+                    <label>Current Password</label>
+                    <input type="password" placeholder="••••••••">
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" placeholder="New password">
+                </div>
+                <button class="btn-primary" style="width: auto; background-color: #86868b;">Update Password</button>
+            </section>
+
+            <!-- Preferences Toggles -->
+            <section class="card">
+                <h3 style="margin-bottom: 20px; font-size: 16px; color: #1d1d1f;">System Preferences</h3>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                    <div>
+                        <div style="font-weight: 500;">Maintenance Mode</div>
+                        <div style="font-size: 12px; color: #86868b;">Hide website from visitors</div>
+                    </div>
+                    <input type="checkbox" style="transform: scale(1.5);">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 500;">Email Notifications</div>
+                        <div style="font-size: 12px; color: #86868b;">Receive emails on new requests</div>
+                    </div>
+                    <input type="checkbox" checked style="transform: scale(1.5);">
+                </div>
+            </section>
+
+        </div>
+    </main>
+</body>
+</html>

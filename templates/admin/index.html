@@ -1,0 +1,30 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - BrijeshPi</title>
+    <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Admin Portal</h2>
+            <form id="loginForm" onsubmit="event.preventDefault(); window.location.href='dashboard.html'">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" placeholder="Enter username" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

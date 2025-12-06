@@ -1,0 +1,99 @@
+<!-- marketing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing - BrijeshPi Admin</title>
+    <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand"><span>BrijeshPi Admin</span></div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
+            <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
+            <li><a href="{{ url_for('admin.users') }}">Users</a></li>
+            <li><a href="{{ url_for('admin.marketing') }}" class="active">Marketing</a></li>
+            <li><a href="{{ url_for('admin.settings') }}">Settings</a></li>
+            <li style="margin-top: 20px;"><a href="index.html" style="color: #ff3b30;">Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1 class="page-title">Marketing & Promotions</h1>
+        </header>
+
+        <!-- Two Columns Layout -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            
+            <!-- 1. Banner Upload Section -->
+            <section class="card">
+                <h3>Homepage Banner</h3>
+                <p style="color: #86868b; font-size: 13px; margin-bottom: 20px;">Upload a new hero banner for your website.</p>
+                
+                <div style="border: 2px dashed #d2d2d7; border-radius: 12px; padding: 40px; text-align: center; color: #86868b; cursor: pointer;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">☁️</div>
+                    Drag & Drop image here<br>or <span style="color: #0071e3;">Browse Files</span>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn-primary">Upload Banner</button>
+                </div>
+            </section>
+
+            <!-- 2. Announcements / Notifications -->
+            <section class="card">
+                <h3>Send Announcement</h3>
+                <p style="color: #86868b; font-size: 13px; margin-bottom: 20px;">Send a notification to all registered users.</p>
+                
+                <form onsubmit="event.preventDefault(); alert('Notification Sent!');">
+                    <div class="input-group">
+                        <label>Title</label>
+                        <input type="text" placeholder="e.g. Black Friday Sale!">
+                    </div>
+                    <div class="input-group">
+                        <label>Message</label>
+                        <textarea placeholder="Write your message here..." style="width: 100%; padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; font-family: inherit; height: 100px; resize: none;"></textarea>
+                    </div>
+                    <button class="btn-primary">Send Notification</button>
+                </form>
+            </section>
+
+        </div>
+
+        <!-- Active Promotions List -->
+        <section class="table-container" style="margin-top: 30px;">
+            <div style="padding: 20px; border-bottom: 1px solid #eee; font-weight: 600;">Active Promotions</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campaign Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Summer Discount 20%</td>
+                        <td>Banner</td>
+                        <td><span class="badge active">Active</span></td>
+                        <td><button class="action-btn delete">Stop</button></td>
+                    </tr>
+                    <tr>
+                        <td>New Service Launch</td>
+                        <td>Email Blast</td>
+                        <td><span class="badge shipped">Sent</span></td>
+                        <td><button class="action-btn">View Report</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+</body>
+</html>
