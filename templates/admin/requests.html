@@ -1,4 +1,3 @@
-<!-- requests.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,30 +7,26 @@
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
 </head>
 <body>
-
     <aside class="sidebar">
         <div class="brand"><span>BrijeshPi Admin</span></div>
         <ul class="nav-links">
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('admin.requests') }}" class="active">Service Requests</a></li> <!-- Active Tab -->
-            <li><a href="{{ url_for('admin.orders') }}">Invoices</a></li> <!-- Renamed Orders to Invoices if you want -->
-            <li><a href="{{ url_for('admin.users') }}">Clients</a></li>
+            <li><a href="{{ url_for('admin.requests') }}" class="active">Service Requests</a></li>
+            <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
+            <li><a href="{{ url_for('admin.users') }}">Users</a></li>
             <li><a href="{{ url_for('admin.marketing') }}">Marketing</a></li>
             <li><a href="{{ url_for('admin.settings') }}">Settings</a></li>
-            <li style="margin-top: 20px;"><a href="index.html" style="color: #ff3b30;">Logout</a></li>
+            <li style="margin-top: 20px;"><a href="/logout" style="color: #ff3b30;">Logout</a></li>
         </ul>
     </aside>
-
     <main class="main-content">
         <header class="header">
             <h1 class="page-title">Service Requests</h1>
             <div class="header-actions">
-                <input type="text" placeholder="Search requests..." 
-                       style="padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; width: 250px;">
+                <input type="text" placeholder="Search requests..." style="padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; width: 250px;">
                 <button class="btn-primary" style="width: auto; padding: 0 20px;">+ New Request</button>
             </div>
         </header>
-
         <section class="table-container">
             <table>
                 <thead>
@@ -39,72 +34,36 @@
                         <th>Client Name</th>
                         <th>Service Type</th>
                         <th>Budget</th>
-                        <th>Deadline</th>
+                        <th>Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Request 1 -->
+                    {% for req in requests %}
                     <tr>
                         <td>
                             <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%; background: #e3f2fd; color:#0071e3; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">JD</div>
+                                <div class="product-img" style="border-radius: 50%; background: #e3f2fd; color:#0071e3; display:flex; align-items:center; justify-content:center; font-weight:bold;">
+                                    {{ req.client_name[0] | upper }}
+                                </div>
                                 <div>
-                                    <div style="font-weight: 500;">John Doe</div>
-                                    <div style="font-size: 12px; color: #86868b;">john@gmail.com</div>
+                                    <div style="font-weight: 500;">{{ req.client_name }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>Web Development</td>
-                        <td>$1,200</td>
-                        <td>Oct 30, 2023</td>
-                        <td><span class="badge pending">Pending</span></td>
+                        <td>{{ req.service_type }}</td>
+                        <td>{{ req.budget }}</td>
+                        <td>{{ req.date }}</td>
+                        <td><span class="badge pending">{{ req.status }}</span></td>
                         <td>
                             <button class="action-btn">Accept</button>
                             <button class="action-btn delete">Reject</button>
                         </td>
                     </tr>
-
-                    <!-- Request 2 -->
-                    <tr>
-                        <td>
-                            <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%; background: #e0f2f1; color:#00695c; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">AM</div>
-                                <div>
-                                    <div style="font-weight: 500;">Alice Moore</div>
-                                    <div style="font-size: 12px; color: #86868b;">alice@studio.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Logo Design</td>
-                        <td>$300</td>
-                        <td>Nov 02, 2023</td>
-                        <td><span class="badge active">In Progress</span></td>
-                        <td>
-                            <button class="action-btn">Details</button>
-                        </td>
-                    </tr>
-
-                    <!-- Request 3 -->
-                    <tr>
-                        <td>
-                            <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%; background: #fbe9e7; color:#d84315; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">TS</div>
-                                <div>
-                                    <div style="font-weight: 500;">Tech Solutions</div>
-                                    <div style="font-size: 12px; color: #86868b;">admin@techsol.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>SEO Audit</td>
-                        <td>$800</td>
-                        <td>Oct 25, 2023</td>
-                        <td><span class="badge shipped">Completed</span></td>
-                        <td>
-                            <button class="action-btn">Invoice</button>
-                        </td>
-                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" style="text-align:center; padding: 20px;">No requests found.</td></tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>

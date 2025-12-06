@@ -7,189 +7,56 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --brand-black: #050505;
-            --brand-charcoal: #111111;
-            --brand-gold: #D4AF37;
-        }
-
-        /* --- CRITICAL LAYOUT FIX --- */
-        html {
-            height: 100%;
-        }
-        
+        :root { --brand-black: #050505; --brand-charcoal: #111111; --brand-gold: #D4AF37; }
+        html { height: 100%; }
         body {
-            font-family: 'Sora', sans-serif;
-            background-color: #ffffff;
-            color: var(--brand-black);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto; /* Allow scroll for longer form */
-            overflow-x: hidden;
-            position: relative;
+            font-family: 'Sora', sans-serif; background-color: #ffffff; color: var(--brand-black);
+            margin: 0; padding: 0; min-height: 100vh; width: 100%; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            overflow-y: auto; overflow-x: hidden; position: relative;
         }
-
-        .serif-font {
-            font-family: 'Playfair Display', serif;
+        .serif-font { font-family: 'Playfair Display', serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
         }
-
-        /* --- LIQUID ANIMATION --- */
-        .liquid {
-            position: absolute;
-            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            z-index: -1;
-            will-change: transform;
-            animation: liquid-morph 15s ease-in-out infinite;
+        .input-group { position: relative; margin-bottom: 1.25rem; }
+        .minimal-input {
+            width: 100%; padding: 1rem 0; background: transparent; border: none;
+            border-bottom: 1px solid #e5e7eb; font-size: 0.95rem; color: var(--brand-black);
+            transition: all 0.3s ease; border-radius: 0;
         }
-
-        .liquid:nth-child(1) { top: -20%; left: -15%; width: 700px; height: 700px; background: #f0f0f0; animation-delay: 0s; }
-        .liquid:nth-child(2) { bottom: -20%; right: -10%; width: 600px; height: 600px; background: #e8e8e8; animation-delay: -5s; animation-direction: reverse; }
-        .liquid:nth-child(3) { top: 30%; left: 40%; width: 400px; height: 400px; background: linear-gradient(135deg, #ffffff, #f3f4f6); filter: blur(50px); opacity: 0.5; animation-duration: 20s; }
-        .liquid:nth-child(4) { bottom: 10%; left: 5%; width: 300px; height: 300px; background: #f3f4f6; opacity: 0.5; animation: liquid-morph 18s ease-in-out infinite reverse; }
-        .liquid:nth-child(5) { top: 10%; right: 20%; width: 200px; height: 200px; background: #e5e7eb; opacity: 0.4; animation: liquid-morph 10s ease-in-out infinite; }
-
+        .minimal-input:focus { outline: none; border-bottom-color: var(--brand-black); }
+        .minimal-input::placeholder { color: #9ca3af; font-weight: 300; opacity: 0; }
+        .floating-label {
+            position: absolute; top: 1rem; left: 0; font-size: 0.9rem; color: #6b7280;
+            pointer-events: none; transition: all 0.3s ease;
+        }
+        .minimal-input:focus ~ .floating-label, .minimal-input:not(:placeholder-shown) ~ .floating-label {
+            top: -0.5rem; font-size: 0.75rem; color: var(--brand-black); font-weight: 500;
+        }
+        .btn-black {
+            background: var(--brand-black); color: white; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .btn-black:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2); }
+        .liquid { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; animation: liquid-morph 15s ease-in-out infinite; }
+        .liquid:nth-child(1) { top: -20%; left: -15%; width: 700px; height: 700px; background: #f0f0f0; }
+        .liquid:nth-child(2) { bottom: -20%; right: -10%; width: 600px; height: 600px; background: #e8e8e8; animation-direction: reverse; }
         @keyframes liquid-morph {
             0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
             50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -30px) rotate(15deg); }
             100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
         }
-
-        /* --- GLASS CARD --- */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 
-                0 30px 60px -15px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-        }
-
-        /* --- INPUT FIELDS --- */
-        .input-group {
-            position: relative;
-            margin-bottom: 1.25rem;
-        }
-
-        .minimal-input {
-            width: 100%;
-            padding: 1rem 0;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 0.95rem;
-            color: var(--brand-black);
-            transition: all 0.3s ease;
-            border-radius: 0;
-        }
-
-        .minimal-input:focus {
-            outline: none;
-            border-bottom-color: var(--brand-black);
-        }
-
-        .minimal-input::placeholder {
-            color: #9ca3af;
-            font-weight: 300;
-            opacity: 0;
-        }
-
-        .floating-label {
-            position: absolute;
-            top: 1rem;
-            left: 0;
-            font-size: 0.9rem;
-            color: #6b7280;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-input:focus ~ .floating-label,
-        .minimal-input:not(:placeholder-shown) ~ .floating-label {
-            top: -0.5rem;
-            font-size: 0.75rem;
-            color: var(--brand-black);
-            font-weight: 500;
-        }
-
-        /* --- BUTTONS --- */
-        .btn-black {
-            background: var(--brand-black);
-            color: white;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-black:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* --- BPI ANIMATION --- */
-        .bpi-container {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
-            width: 80px;
-            height: 40px;
-            z-index: 5;
-            opacity: 0.3;
-        }
-
-        .bpi-svg {
-            width: 100%;
-            height: 100%;
-            stroke: var(--brand-black);
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .bpi-path {
-            stroke-dasharray: 100;
-            stroke-dashoffset: 100;
-            animation: draw-bpi 6s ease-in-out infinite alternate;
-        }
-
-        .bpi-path:nth-child(2) { animation-delay: 0.5s; }
-        .bpi-path:nth-child(3) { animation-delay: 1s; }
-
-        @keyframes draw-bpi {
-            0% { stroke-dashoffset: 100; opacity: 0; }
-            20% { stroke-dashoffset: 100; opacity: 1; }
-            100% { stroke-dashoffset: 0; opacity: 1; }
-        }
     </style>
 </head>
 <body>
+    <div class="liquid"></div><div class="liquid"></div>
 
-    <!-- Liquid Backgrounds -->
-    <div class="liquid"></div>
-    <div class="liquid"></div>
-    <div class="liquid"></div>
-    <div class="liquid"></div>
-    <div class="liquid"></div>
-
-    <!-- Signup Container -->
     <div class="relative z-10 w-full max-w-md px-6 py-10">
-        
-        <!-- Signup Card -->
         <div class="glass-card rounded-[32px] p-10 md:p-12">
-            
-            <!-- Header -->
             <div class="text-center mb-10">
                 <a href="index.html" class="inline-block mb-6 group">
                     <span class="text-xs font-bold tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition">BrijeshPI</span>
@@ -198,42 +65,36 @@
                 <p class="text-sm text-gray-500 font-light">Join the future of finance</p>
             </div>
 
-            <!-- Form -->
-            <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='index.html'">
+            <!-- ⭐ FIXED FORM STARTS HERE ⭐ -->
+            <form action="/signup" method="POST">
                 
                 <!-- Full Name -->
                 <div class="input-group">
-                    <input type="text" id="fullname" class="minimal-input" placeholder=" " required>
+                    <!-- Added name="full_name" -->
+                    <input type="text" id="fullname" name="full_name" class="minimal-input" placeholder=" " required>
                     <label for="fullname" class="floating-label">Full Name</label>
                 </div>
 
-                <!-- Phone -->
+                <!-- Phone (Optional for now, but added name just in case) -->
                 <div class="input-group">
-                    <input type="tel" id="phone" class="minimal-input" placeholder=" " required>
+                    <input type="tel" id="phone" name="phone" class="minimal-input" placeholder=" " required>
                     <label for="phone" class="floating-label">Phone Number</label>
                 </div>
 
                 <!-- Email -->
                 <div class="input-group">
-                    <input type="email" id="email" class="minimal-input" placeholder=" " required>
+                    <!-- Added name="email" -->
+                    <input type="email" id="email" name="email" class="minimal-input" placeholder=" " required>
                     <label for="email" class="floating-label">Email Address</label>
                 </div>
 
                 <!-- Password -->
                 <div class="input-group relative">
-                    <input type="password" id="password" class="minimal-input pr-8" placeholder=" " required>
+                    <!-- Added name="password" -->
+                    <input type="password" id="password" name="password" class="minimal-input pr-8" placeholder=" " required>
                     <label for="password" class="floating-label">Password</label>
                     <button type="button" onclick="togglePassword('password', 'eyeIcon1')" class="absolute right-0 top-4 text-gray-400 hover:text-black transition">
                         <i class="fa-regular fa-eye text-sm" id="eyeIcon1"></i>
-                    </button>
-                </div>
-
-                 <!-- Confirm Password -->
-                 <div class="input-group relative">
-                    <input type="password" id="confirm_password" class="minimal-input pr-8" placeholder=" " required>
-                    <label for="confirm_password" class="floating-label">Re-enter Password</label>
-                    <button type="button" onclick="togglePassword('confirm_password', 'eyeIcon2')" class="absolute right-0 top-4 text-gray-400 hover:text-black transition">
-                        <i class="fa-regular fa-eye text-sm" id="eyeIcon2"></i>
                     </button>
                 </div>
 
@@ -241,43 +102,25 @@
                 <button type="submit" class="btn-black w-full py-4 rounded-xl font-medium text-sm tracking-wide mt-4 mb-4">
                     Create Account
                 </button>
-
             </form>
+            <!-- ⭐ FIXED FORM ENDS HERE ⭐ -->
 
-            <!-- Footer: Login Link -->
             <div class="text-center mt-6">
                 <p class="text-xs text-gray-400">
                     Already have an account? 
-                    <a href="login.html" class="text-black font-semibold ml-1 hover:underline decoration-1 underline-offset-4">Login</a>
+                    <a href="/login" class="text-black font-semibold ml-1 hover:underline decoration-1 underline-offset-4">Login</a>
                 </p>
             </div>
-
         </div>
-        
-        <!-- Bottom Text -->
         <div class="text-center mt-8 opacity-40">
             <p class="text-[10px] uppercase tracking-[0.2em]">Secured by BrijeshPI Protocol</p>
         </div>
-
-    </div>
-
-    <!-- 2D BPI Animation -->
-    <div class="bpi-container">
-        <svg class="bpi-svg" viewBox="0 0 90 40">
-            <!-- B -->
-            <path class="bpi-path" d="M10 35 V5 H25 C32 5 35 12 25 18 H10 M25 18 C35 18 35 35 25 35 H10" />
-            <!-- P -->
-            <path class="bpi-path" d="M45 35 V5 H55 C62 5 62 18 55 18 H45" />
-            <!-- I -->
-            <path class="bpi-path" d="M75 5 V35" />
-        </svg>
     </div>
 
     <script>
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const eyeIcon = document.getElementById(iconId);
-            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeIcon.classList.remove('fa-eye');
