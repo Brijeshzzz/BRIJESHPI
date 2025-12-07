@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify, Blueprint, url_for, flash
+from flask import Flask, render_template, request, redirect, session, jsonify, Blueprint, url_for, flash, render_template_string
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -9,6 +9,7 @@ import random
 import os
 import json
 import urllib.parse
+import re  # Added for parsing budget numbers
 from groq import Groq
 
 # ---------------- CONFIGURATION ----------------
@@ -35,8 +36,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), default="user")
     
     # --- NEW FIELDS FOR PARTNERS ---
-    company_name = db.Column(db.String(100)) # e.g. "Rajesh Plumbing Co"
-    service_category = db.Column(db.String(50)) # e.g. "Plumber"
+    company_name = db.Column(db.String(100)) 
+    service_category = db.Column(db.String(50)) 
 
 class ServiceRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,7 +49,7 @@ class ServiceRequest(db.Model):
     date = db.Column(db.String(50))
     
     # --- NEW: ASSIGN TO PARTNER ---
-    assigned_to_id = db.Column(db.Integer, nullable=True) # Stores User ID of the partner
+    assigned_to_id = db.Column(db.Integer, nullable=True) 
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,8 +61,8 @@ class Service(db.Model):
 class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    platform = db.Column(db.String(50)) # e.g., Facebook, Google, Email
-    status = db.Column(db.String(20)) # Active, Paused, Completed
+    platform = db.Column(db.String(50)) 
+    status = db.Column(db.String(20)) 
     reach = db.Column(db.Integer, default=0)
     conversions = db.Column(db.Integer, default=0)
     budget_spent = db.Column(db.Float, default=0.0)
@@ -121,7 +122,6 @@ def requests():
     requests = query.order_by(ServiceRequest.id.desc()).all()
     all_services = Service.query.all()
     
-    # Pass list of partners so Admin can assign jobs later if needed
     partners = User.query.filter_by(role='partner').all()
     
     return render_template('admin/requests.html', requests=requests, services=all_services, partners=partners)
@@ -201,7 +201,7 @@ def marketing():
     total_users = User.query.count()
     total_orders = ServiceRequest.query.count()
     growth_percent = 12.5 
-    revenue_estimate = total_orders * 150 # Assuming avg $150 per order
+    revenue_estimate = total_orders * 150 
     campaigns = Campaign.query.all()
     
     return render_template('admin/marketing.html', 
@@ -240,9 +240,78 @@ def dashboard():
     if current_user.role != 'partner':
         return redirect(url_for('login'))
     
-    # Only show orders assigned to THIS partner
+    # 1. Fetch assigned jobs
     my_jobs = ServiceRequest.query.filter_by(assigned_to_id=current_user.id).all()
-    return render_template('client/dashboard.html', jobs=my_jobs, user=current_user)
+    
+    # 2. Calculate Earnings (sum of numbers in 'budget' field for Completed jobs)
+    total_earnings = 0.0
+    for job in my_jobs:
+        if job.status == 'Completed':
+            try:
+                # Extracts first number found in the budget string (e.g. "Fix pipe $150")
+                matches = re.findall(r'\d+', job.budget)
+                if matches:
+                    total_earnings += float(matches[0])
+            except:
+                pass
+
+    return render_template('client/dashboard.html', 
+                           jobs=my_jobs, 
+                           user=current_user,
+                           earnings=total_earnings)
+
+@partner_bp.route('/job/<int:request_id>')
+@login_required
+def job_details(request_id):
+    if current_user.role != 'partner': return redirect(url_for('login'))
+    
+    job = ServiceRequest.query.get_or_404(request_id)
+    if job.assigned_to_id != current_user.id:
+        flash("Unauthorized", "danger")
+        return redirect(url_for('partner.dashboard'))
+        
+    # Simple HTML template for job details (saves creating a new file)
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Job Details</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/style.css') }}">
+        <style>
+            body { font-family: -apple-system, sans-serif; background: #f5f5f7; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+            .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px; }
+            h1 { margin-top: 0; font-size: 24px; color: #333; }
+            .row { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+            .label { font-weight: 600; color: #666; font-size: 14px; display: block; margin-bottom: 4px; }
+            .value { font-size: 16px; color: #111; }
+            .back-btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #0071e3; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Job #{{ job.id }}</h1>
+            <div class="row"><span class="label">Client Name</span><span class="value">{{ job.client_name }}</span></div>
+            <div class="row"><span class="label">Service</span><span class="value">{{ job.service_type }}</span></div>
+            <div class="row"><span class="label">Phone</span><span class="value">{{ job.phone }}</span></div>
+            <div class="row"><span class="label">Status</span><span class="value">{{ job.status }}</span></div>
+            <div class="row"><span class="label">Details/Cost</span><span class="value">{{ job.budget }}</span></div>
+            <a href="{{ url_for('partner.dashboard') }}" class="back-btn">&larr; Back</a>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html_template, job=job)
+
+@partner_bp.route('/earnings')
+@login_required
+def earnings():
+    return "<h1>Earnings Page - Coming Soon</h1><a href='/partner/dashboard'>Back</a>"
+
+@partner_bp.route('/reviews')
+@login_required
+def reviews():
+    return "<h1>Reviews Page - Coming Soon</h1><a href='/partner/dashboard'>Back</a>"
 
 app.register_blueprint(partner_bp)
 
@@ -270,7 +339,26 @@ def chat():
     if len(history) > 20: history = history[-20:]
     session["chat_history"] = history
 
-    system_prompt = "You are Sarah, the Booking Agent. Collect: Name, Phone, Service, Issue, Urgency, Address, City, Time. Output JSON with key SAVE_DB if complete."
+    system_prompt = """
+    You are Sarah, the Booking Agent.
+    GOAL: Collect 8 details. Check history first.
+    REQUIRED: 1.Name 2.Phone 3.Service 4.Issue 5.Urgency 6.Address 7.City 8.Time
+    RULES:
+    - If detail exists, MARK DONE.
+    - Ask for NEXT missing detail.
+    - IF ALL 8 ARE DONE, OUTPUT ONLY THIS JSON:
+    {
+      "SAVE_DB": true,
+      "name": "...",
+      "phone": "...",
+      "service": "...",
+      "issue": "...",
+      "urgency": "...",
+      "address": "...",
+      "city": "...",
+      "time": "..."
+    }
+    """
 
     try:
         messages = [{"role": "system", "content": system_prompt}] + history
@@ -297,10 +385,28 @@ def chat():
                     db.session.add(new_req)
                     db.session.commit()
                     
-                    final_reply = "✅ Booking Saved! I have sent your request to the admin panel."
+                    ADMIN_PHONE = "919944653073" 
+                    wa_text = f"""*New Service Request*
+-------------------
+*Name:* {json_data.get('name')}
+*Phone:* {json_data.get('phone')}
+*Service:* {json_data.get('service')}
+*Issue:* {json_data.get('issue')}
+*Urgency:* {json_data.get('urgency')}
+*Address:* {json_data.get('address')}, {json_data.get('city')}
+*Time:* {json_data.get('time')}"""
+                    
+                    wa_url = f"https://wa.me/{ADMIN_PHONE}?text={urllib.parse.quote(wa_text)}"
+                    
+                    final_reply = f"""
+                    ✅ <b>Booking Saved!</b><br>
+                    I have sent your request to the admin panel.<br><br>
+                    👇 <b>Click below to confirm on WhatsApp:</b><br>
+                    <a href='{wa_url}' target='_blank' style='display:inline-block; padding:10px 20px; background-color:#25D366; color:white; text-decoration:none; border-radius:5px; margin-top:10px;'>Open WhatsApp</a>
+                    """
                     session.pop("chat_history", None)
                 else:
-                    final_reply = "Error: AI format incorrect."
+                    final_reply = "Error: AI format incorrect. Please type 'CONFIRM' to try again."
             except Exception as e:
                 print("Save Error:", e)
                 final_reply = f"System Error saving booking: {str(e)}"
@@ -318,7 +424,6 @@ def chat():
     except Exception as e:
         print("Groq Error:", e)
         return jsonify({"reply": f"System Error: {str(e)}"}), 500
-
 
 # ---------------- PUBLIC ROUTES ----------------
 @app.route("/")
