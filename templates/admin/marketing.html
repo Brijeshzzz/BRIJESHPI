@@ -1,22 +1,55 @@
-<!-- marketing.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing - BrijeshPi Admin</title>
+    <title>Growth Dashboard - BrijeshPi Admin</title>
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+    <!-- Chart.js for beautiful graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <style>
+        /* 4 Columns for top Stats */
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
+        .stat-card h4 { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-card .val { font-size: 28px; font-weight: 700; color: #333; }
+        .stat-card .trend { font-size: 12px; margin-top: 5px; font-weight: 500; }
+        .trend.up { color: #1cc88a; } 
+        .trend.down { color: #e74a3b; }
+        
+        /* 2 Columns for Chart (Left) and Form (Right) */
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+        
+        .chart-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
+        
+        /* Form styling */
+        input, select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #4e73df; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #2e59d9; }
+
+        /* Table styling */
+        .campaign-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .campaign-table th { text-align: left; padding: 12px; font-size: 12px; color: #888; border-bottom: 1px solid #eee; }
+        .campaign-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-active { background: #1cc88a; }
+        .status-paused { background: #f6c23e; }
+        .status-completed { background: #858796; }
+    </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <div class="brand"><span>BrijeshPi Admin</span></div>
+        <div class="brand">
+            <span>BrijeshPi Admin</span>
+        </div>
         <ul class="nav-links">
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
             <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
             <li><a href="{{ url_for('admin.users') }}">Users</a></li>
-            <li><a href="{{ url_for('admin.marketing') }}" class="active">Marketing</a></li>
+            <li><a href="{{ url_for('admin.services') }}">Services</a></li>
+            <li><a href="{{ url_for('admin.marketing') }}">Marketing</a></li>
             <li><a href="{{ url_for('admin.settings') }}">Settings</a></li>
             <li style="margin-top: 20px;"><a href="/logout" style="color: #ff3b30;">Logout</a></li>
         </ul>
@@ -24,76 +57,138 @@
 
     <main class="main-content">
         <header class="header">
-            <h1 class="page-title">Marketing & Promotions</h1>
+            <h1 class="page-title">Platform Growth (Global)</h1>
+            <div class="user-profile"><span>Admin</span></div>
         </header>
 
-        <!-- Two Columns Layout -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <!-- 1. KEY METRICS ROW -->
+        <section class="grid-4">
+            <div class="stat-card">
+                <h4>Total Revenue (Est)</h4>
+                <div class="val">${{ revenue }}</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> {{ growth }}% vs last month</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Users</h4>
+                <div class="val">{{ users }}</div>
+                <div class="trend up">Active Database</div>
+            </div>
+            <div class="stat-card">
+                <h4>Orders Created</h4>
+                <div class="val">{{ orders }}</div>
+                <div class="trend up">Lifetime Volume</div>
+            </div>
+            <div class="stat-card">
+                <h4>Avg Conversion</h4>
+                <div class="val">4.2%</div>
+                <div class="trend down">Target: 5.0%</div>
+            </div>
+        </section>
+
+        <!-- 2. CHARTS SECTION (GRID-2) -->
+        <section class="grid-2">
             
-            <!-- 1. Banner Upload Section -->
-            <section class="card">
-                <h3>Homepage Banner</h3>
-                <p style="color: #86868b; font-size: 13px; margin-bottom: 20px;">Upload a new hero banner for your website.</p>
-                
-                <div style="border: 2px dashed #d2d2d7; border-radius: 12px; padding: 40px; text-align: center; color: #86868b; cursor: pointer;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">☁️</div>
-                    Drag & Drop image here<br>or <span style="color: #0071e3;">Browse Files</span>
+            <!-- LEFT COLUMN: CHART -->
+            <div class="chart-box" style="height: 400px;">
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Revenue & Traffic Overview</h3>
+                <div style="height: 320px;">
+                    <canvas id="growthChart"></canvas>
                 </div>
+            </div>
+            
+            <!-- RIGHT COLUMN: LAUNCH FORM -->
+            <div class="chart-box" style="height: auto;">
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Launch Campaign</h3>
                 
-                <div style="margin-top: 20px;">
-                    <button class="btn-primary">Upload Banner</button>
-                </div>
-            </section>
-
-            <!-- 2. Announcements / Notifications -->
-            <section class="card">
-                <h3>Send Announcement</h3>
-                <p style="color: #86868b; font-size: 13px; margin-bottom: 20px;">Send a notification to all registered users.</p>
-                
-                <form onsubmit="event.preventDefault(); alert('Notification Sent!');">
-                    <div class="input-group">
-                        <label>Title</label>
-                        <input type="text" placeholder="e.g. Black Friday Sale!">
-                    </div>
-                    <div class="input-group">
-                        <label>Message</label>
-                        <textarea placeholder="Write your message here..." style="width: 100%; padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; font-family: inherit; height: 100px; resize: none;"></textarea>
-                    </div>
-                    <button class="btn-primary">Send Notification</button>
+                <form action="/admin/marketing/campaign/add" method="POST">
+                    <label style="font-size: 12px; font-weight: 600; color: #555;">Campaign Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Winter Sale">
+                    
+                    <label style="font-size: 12px; font-weight: 600; color: #555;">Platform</label>
+                    <select name="platform">
+                        <option value="Facebook">Facebook Ads</option>
+                        <option value="Google">Google Ads</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Email">Email Blast</option>
+                    </select>
+                    
+                    <button type="submit">Launch Campaign</button>
                 </form>
-            </section>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h4 style="font-size: 12px; color: #888;">AI Insight</h4>
+                    <p style="font-size: 13px; color: #555; margin-top: 5px; line-height: 1.5;">
+                        "Facebook Ads are performing 20% better than Google this week. Recommend shifting $500 budget to FB."
+                    </p>
+                </div>
+            </div>
 
-        </div>
+        </section> <!-- END GRID-2 -->
 
-        <!-- Active Promotions List -->
-        <section class="table-container" style="margin-top: 30px;">
-            <div style="padding: 20px; border-bottom: 1px solid #eee; font-weight: 600;">Active Promotions</div>
-            <table>
+        <!-- 3. CAMPAIGNS LIST -->
+        <section class="card" style="padding: 0; overflow: hidden; background: white; border-radius: 12px; border: 1px solid #eee;">
+            <div style="padding: 20px; border-bottom: 1px solid #eee;">
+                <h3 style="margin: 0;">Active Marketing Campaigns</h3>
+            </div>
+            <table class="campaign-table">
                 <thead>
                     <tr>
-                        <th>Campaign Name</th>
-                        <th>Type</th>
+                        <th style="padding-left: 20px;">Campaign</th>
+                        <th>Platform</th>
                         <th>Status</th>
-                        <th>Action</th>
+                        <th>Reach</th>
+                        <th>Conversions</th>
+                        <th>ROI</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for camp in campaigns %}
                     <tr>
-                        <td>Summer Discount 20%</td>
-                        <td>Banner</td>
-                        <td><span class="badge active">Active</span></td>
-                        <td><button class="action-btn delete">Stop</button></td>
+                        <td style="padding-left: 20px; font-weight: 600;">{{ camp.name }}</td>
+                        <td>{{ camp.platform }}</td>
+                        <td>
+                            <span class="status-dot {% if camp.status == 'Active' %}status-active{% elif camp.status == 'Paused' %}status-paused{% else %}status-completed{% endif %}"></span>
+                            {{ camp.status }}
+                        </td>
+                        <td>{{ camp.reach }}</td>
+                        <td>{{ camp.conversions }}</td>
+                        <td style="color: #1cc88a; font-weight: 600;">{{ camp.roi }}%</td>
                     </tr>
+                    {% else %}
                     <tr>
-                        <td>New Service Launch</td>
-                        <td>Email Blast</td>
-                        <td><span class="badge shipped">Sent</span></td>
-                        <td><button class="action-btn">View Report</button></td>
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #999;">No campaigns launched yet.</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
 
     </main>
+
+    <!-- Chart.js Script -->
+    <script>
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: [1200, 1900, 3000, 5000, 4500, 7200], 
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { borderDash: [2] } }, x: { grid: { display: false } } }
+            }
+        });
+    </script>
 </body>
 </html>

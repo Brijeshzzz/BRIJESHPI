@@ -4,112 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Requests - BrijeshPi Admin</title>
-    <!-- EXACT CSS LINK FROM DASHBOARD -->
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
     <style>
-        /* Inline styles to match table layout perfectly */
         .table-container { margin-top: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
         th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: #888; }
         tr:hover { background-color: #fcfcfc; }
         .btn { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; margin-right: 5px; }
-        .btn-accept { background-color: #34c759; color: white; }
+        .btn-accept { background-color: #34c759; color: white; border: none; cursor: pointer; }
         .btn-reject { background-color: #ff3b30; color: white; }
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; background: #eee; color: #333; font-weight: 500; }
-        
-        /* SEARCH BAR STYLES */
-        .filter-bar {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .filter-input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-        }
-        .filter-input:focus { border-color: #4e73df; }
-        .btn-filter {
-            background-color: #4e73df;
-            color: white;
-            border: none;
-            padding: 9px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .btn-reset {
-            background-color: #858796;
-            color: white;
-            padding: 9px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-        }
+        .filter-bar { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .filter-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; outline: none; }
+        .btn-filter { background-color: #4e73df; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        .btn-reset { background-color: #858796; color: white; padding: 9px 15px; border-radius: 4px; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="brand">
-            <span>BrijeshPi Admin</span>
-        </div>
+        <div class="brand"><span>BrijeshPi Admin</span></div>
         <ul class="nav-links">
             <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('admin.requests') }}" class="active">Service Requests</a></li>
+            <li><a href="{{ url_for('admin.requests') }}">Service Requests</a></li>
             <li><a href="{{ url_for('admin.orders') }}">Orders</a></li>
             <li><a href="{{ url_for('admin.users') }}">Users</a></li>
+            <li><a href="{{ url_for('admin.services') }}">Services</a></li>
             <li><a href="{{ url_for('admin.marketing') }}">Marketing</a></li>
             <li><a href="{{ url_for('admin.settings') }}">Settings</a></li>
             <li style="margin-top: 20px;"><a href="/logout" style="color: #ff3b30;">Logout</a></li>
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <header class="header">
             <h1 class="page-title">Service Requests</h1>
-            <div class="user-profile">
-                <span style="font-weight: 500;">Admin</span>
-            </div>
+            <div class="user-profile"><span style="font-weight: 500;">Admin</span></div>
         </header>
 
-        <!-- SEARCH & FILTER BAR -->
         <form class="filter-bar" method="GET" action="{{ url_for('admin.requests') }}">
-            <!-- Search Name/Phone -->
-            <input type="text" name="search" class="filter-input" placeholder="Search Name or Phone..." 
-                   value="{{ request.args.get('search', '') }}" style="flex: 1; min-width: 200px;">
-            
-            <!-- Filter by Service -->
+            <input type="text" name="search" class="filter-input" placeholder="Search Name or Phone..." value="{{ request.args.get('search', '') }}" style="flex: 1; min-width: 200px;">
             <select name="service" class="filter-input">
                 <option value="">All Services</option>
-                <option value="Plumber" {% if request.args.get('service') == 'Plumber' %}selected{% endif %}>Plumber</option>
-                <option value="Electrician" {% if request.args.get('service') == 'Electrician' %}selected{% endif %}>Electrician</option>
-                <option value="AC Service" {% if request.args.get('service') == 'AC Service' %}selected{% endif %}>AC Service</option>
-                <option value="Painter" {% if request.args.get('service') == 'Painter' %}selected{% endif %}>Painter</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Electrician">Electrician</option>
             </select>
-            
-            <!-- Filter by Date -->
-            <input type="date" name="date" class="filter-input" value="{{ request.args.get('date', '') }}">
-            
             <button type="submit" class="btn-filter">Search</button>
             <a href="{{ url_for('admin.requests') }}" class="btn-reset">Reset</a>
         </form>
 
-        <!-- Requests Table Section -->
         <section class="card" style="padding: 0; background: transparent; box-shadow: none;">
-            <!-- Removed the h3 header since we have the page title and filter bar now -->
-            
             <div class="table-container">
                 <table>
                     <thead>
@@ -117,39 +62,41 @@
                             <th>ID</th>
                             <th>Client</th>
                             <th>Service</th>
-                            <th>Phone</th>
                             <th>Details</th>
-                            <th>Date</th>
-                            <th>Actions</th>
+                            <th>Assign To</th> 
                         </tr>
                     </thead>
                     <tbody>
                         {% for req in requests %}
                         <tr>
                             <td>#{{ req.id }}</td>
-                            <td><strong>{{ req.client_name }}</strong></td>
-                            <td><span class="badge">{{ req.service_type }}</span></td>
-                            <td>{{ req.phone }}</td>
-                            <td style="color: #666; max-width: 250px;">{{ req.budget }}</td>
-                            <td>{{ req.date }}</td>
                             <td>
-                                <a href="/admin/accept/{{ req.id }}" class="btn btn-accept">Accept</a>
-                                <a href="/admin/reject/{{ req.id }}" class="btn btn-reject">Reject</a>
+                                <strong>{{ req.client_name }}</strong><br>
+                                <span style="font-size: 11px; color: #888;">{{ req.phone }}</span>
+                            </td>
+                            <td><span class="badge">{{ req.service_type }}</span></td>
+                            <td style="color: #666; max-width: 200px; font-size: 12px;">{{ req.budget }}</td>
+                            <td>
+                                <!-- ASSIGN FORM -->
+                                <form action="/admin/assign/{{ req.id }}" method="POST" style="display: flex; align-items: center; gap: 5px;">
+                                    <select name="partner_id" required style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; width: 140px;">
+                                        <option value="" disabled selected>Select Partner</option>
+                                        {% for partner in partners %}
+                                            <option value="{{ partner.id }}">{{ partner.company_name }} ({{ partner.service_category }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-accept">Assign</button>
+                                    <a href="/admin/reject/{{ req.id }}" class="btn btn-reject" style="padding: 6px 10px;">X</a>
+                                </form>
                             </td>
                         </tr>
                         {% else %}
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
-                                No service requests found matching your filter.
-                            </td>
-                        </tr>
+                        <tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">No requests found.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </section>
     </main>
-
-    <script src="{{ url_for('admin.static', filename='admin/js/app.js') }}"></script>
 </body>
 </html>
