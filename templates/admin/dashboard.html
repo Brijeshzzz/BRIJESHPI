@@ -1,4 +1,3 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,10 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - BrijeshPi Admin</title>
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+    
+    <style>
+        /* Minimalist Card Styles to match your clean theme */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow like the table */
+            border: 1px solid #eee;
+        }
+        .card h3 { 
+            font-size: 0.85rem; 
+            color: #888; 
+            margin-bottom: 10px; 
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .number { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            color: #333;
+        }
+        /* Color accents for numbers only (Cleaner look) */
+        .card.blue .number { color: #4e73df; }
+        .card.yellow .number { color: #f6c23e; }
+        .card.green .number { color: #1cc88a; }
+        .card.red .number { color: #e74a3b; }
+    </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar (Restored to match Requests page exactly) -->
     <aside class="sidebar">
         <div class="brand">
             <span>BrijeshPi Admin</span>
@@ -28,37 +61,40 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="header">
-            <h1 class="page-title">Overview</h1>
+            <h1 class="page-title">Dashboard</h1>
             <div class="user-profile">
-                <!-- Placeholder for Admin Profile Pic/Name -->
-                <span style="font-weight: 500;">Admin</span>
+                <!-- Text only, no bubble, matching Requests page -->
+                <span style="font-weight: 500;">{{ current_user.username }}</span>
             </div>
         </header>
 
         <!-- Analytics Cards -->
         <section class="stats-grid">
-            <div class="card">
-                <h3>Total Sales</h3>
-                <div class="number">$12,450</div>
+            <div class="card blue">
+                <h3>Total Requests</h3>
+                <div class="number">{{ total }}</div>
             </div>
-            <div class="card">
-                <h3>Active Orders</h3>
-                <div class="number">45</div>
+            <div class="card yellow">
+                <h3>New Bookings</h3>
+                <div class="number">{{ new }}</div>
             </div>
-            <div class="card">
-                <h3>Total Users</h3>
-                <div class="number">1,208</div>
+            <div class="card green">
+                <h3>Completed Jobs</h3>
+                <div class="number">{{ completed }}</div>
+                <div style="font-size: 0.8rem; color: #1cc88a; margin-top: 5px;">Success Rate: {{ rate }}%</div>
             </div>
-            <div class="card">
-                <h3>Site Visitors</h3>
-                <div class="number">890</div>
+            <div class="card red">
+                <h3>Rejected</h3>
+                <div class="number">{{ rejected }}</div>
             </div>
         </section>
 
-        <!-- Recent Activity Section (Placeholder) -->
-        <section class="card" style="min-height: 300px;">
-            <h3>Recent Orders</h3>
-            <p style="color: var(--text-secondary); margin-top: 10px;">No recent orders to display.</p>
+        <!-- System Status -->
+        <section class="card" style="min-height: 100px;">
+            <h3>System Status</h3>
+            <p style="color: #666; margin-top: 10px;">
+                System is running smoothly.
+            </p>
         </section>
     </main>
 

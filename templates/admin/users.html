@@ -1,4 +1,3 @@
-<!-- users.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users - BrijeshPi Admin</title>
     <link rel="stylesheet" href="{{ url_for('admin.static', filename='admin/css/style.css') }}">
+    <style>
+        /* Inline Styles specific for User List matching your existing theme */
+        .table-container { margin-top: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: #888; }
+        tr:hover { background-color: #fcfcfc; }
+        .product-cell { display: flex; align-items: center; gap: 10px; }
+        .product-img { width: 35px; height: 35px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .badge.active { background: #e8f5e9; color: #2e7d32; }
+        .action-btn { border: 1px solid #ddd; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .action-btn.delete { border-color: #ffccc7; background: #fff1f0; color: #ff4d4f; margin-left: 5px; }
+    </style>
 </head>
 <body>
 
+    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="brand"><span>BrijeshPi Admin</span></div>
         <ul class="nav-links">
@@ -22,11 +36,13 @@
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
         <header class="header">
             <h1 class="page-title">Registered Users</h1>
-            <input type="text" placeholder="Search users..." 
-                   style="padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; width: 250px;">
+            <div class="user-profile">
+                <span style="font-weight: 500;">Admin</span>
+            </div>
         </header>
 
         <section class="table-container">
@@ -41,33 +57,41 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for user in users %}
                     <tr>
                         <td>
                             <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%;"></div> <!-- Round for user avatar -->
-                                <div><b>Brijesh Pi</b><br><span style="font-size:12px; color:#888;">Admin</span></div>
+                                <!-- Dynamic Initials Avatar -->
+                                <div class="product-img">
+                                    {{ user.username[0].upper() if user.username else '?' }}
+                                </div>
+                                <div>
+                                    <b>{{ user.username or 'Unknown' }}</b><br>
+                                    <span style="font-size:12px; color:#888;">ID: #{{ user.id }}</span>
+                                </div>
                             </div>
                         </td>
-                        <td>admin@brijeshpi.com</td>
-                        <td>Admin</td>
-                        <td><span class="badge active">Active</span></td>
-                        <td><button class="action-btn">Edit</button></td>
-                    </tr>
-                    <tr>
+                        <td>{{ user.email }}</td>
                         <td>
-                            <div class="product-cell">
-                                <div class="product-img" style="border-radius: 50%;"></div>
-                                <div><b>John Doe</b><br><span style="font-size:12px; color:#888;">Customer</span></div>
-                            </div>
+                            {% if user.role == 'admin' %}
+                                <span style="background: #e3f2fd; color: #0d47a1; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">Admin</span>
+                            {% else %}
+                                <span>Customer</span>
+                            {% endif %}
                         </td>
-                        <td>john@example.com</td>
-                        <td>Buyer</td>
                         <td><span class="badge active">Active</span></td>
                         <td>
                             <button class="action-btn">Edit</button>
+                            {% if user.role != 'admin' %}
                             <button class="action-btn delete">Block</button>
+                            {% endif %}
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: #999;">No users found.</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>

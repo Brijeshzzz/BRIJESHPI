@@ -17,6 +17,44 @@
         .btn-accept { background-color: #34c759; color: white; }
         .btn-reject { background-color: #ff3b30; color: white; }
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; background: #eee; color: #333; font-weight: 500; }
+        
+        /* SEARCH BAR STYLES */
+        .filter-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .filter-input:focus { border-color: #4e73df; }
+        .btn-filter {
+            background-color: #4e73df;
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-reset {
+            background-color: #858796;
+            color: white;
+            padding: 9px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -46,9 +84,31 @@
             </div>
         </header>
 
+        <!-- SEARCH & FILTER BAR -->
+        <form class="filter-bar" method="GET" action="{{ url_for('admin.requests') }}">
+            <!-- Search Name/Phone -->
+            <input type="text" name="search" class="filter-input" placeholder="Search Name or Phone..." 
+                   value="{{ request.args.get('search', '') }}" style="flex: 1; min-width: 200px;">
+            
+            <!-- Filter by Service -->
+            <select name="service" class="filter-input">
+                <option value="">All Services</option>
+                <option value="Plumber" {% if request.args.get('service') == 'Plumber' %}selected{% endif %}>Plumber</option>
+                <option value="Electrician" {% if request.args.get('service') == 'Electrician' %}selected{% endif %}>Electrician</option>
+                <option value="AC Service" {% if request.args.get('service') == 'AC Service' %}selected{% endif %}>AC Service</option>
+                <option value="Painter" {% if request.args.get('service') == 'Painter' %}selected{% endif %}>Painter</option>
+            </select>
+            
+            <!-- Filter by Date -->
+            <input type="date" name="date" class="filter-input" value="{{ request.args.get('date', '') }}">
+            
+            <button type="submit" class="btn-filter">Search</button>
+            <a href="{{ url_for('admin.requests') }}" class="btn-reset">Reset</a>
+        </form>
+
         <!-- Requests Table Section -->
-        <section class="card" style="min-height: 500px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <h3 style="margin-bottom: 20px;">New Incoming Requests</h3>
+        <section class="card" style="padding: 0; background: transparent; box-shadow: none;">
+            <!-- Removed the h3 header since we have the page title and filter bar now -->
             
             <div class="table-container">
                 <table>
@@ -79,7 +139,9 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #999;">No new service requests found.</td>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                                No service requests found matching your filter.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
