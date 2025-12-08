@@ -50,89 +50,46 @@
         <div><a href="/logout" class="flex items-center gap-3 text-xs uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors font-bold"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></div>
     </aside>
 
+
     <!-- MAIN CONTENT -->
     <main class="flex-1 overflow-y-auto relative bg-[#FAFAFA]">
         <div class="p-8 md:p-12 max-w-7xl mx-auto min-h-screen">
             
             <!-- SECTION: OVERVIEW -->
             <div id="explore" class="content-section {% if view_mode == 'provider' %}active-section{% endif %}">
-                 <header class="mb-10 flex justify-between items-end"><div><h1 class="text-3xl mb-2">Welcome back, {{ user.username }}</h1>{% if view_mode == 'provider' %}<p class="text-green-600 font-medium">✨ Business Dashboard</p>{% else %}<p class="text-gray-500 font-light">Your Personal Dashboard</p>{% endif %}</div>{% if view_mode == 'provider' %}<div class="bg-white px-4 py-2 rounded-full border border-gray-200 flex items-center gap-3 shadow-sm"><span class="text-xs font-bold uppercase tracking-wider text-gray-500">Availability</span><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0"/><label for="toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label></div><span class="text-xs font-bold text-green-500">ONLINE</span></div>{% endif %}</header>
+                 <header class="mb-10 flex justify-between items-end"><div><h1 class="text-3xl mb-2">Welcome back, {{ user.username }}</h1>{% if view_mode == 'provider' %}<p class="text-green-600 font-medium">âœ¨ Business Dashboard</p>{% else %}<p class="text-gray-500 font-light">Your Personal Dashboard</p>{% endif %}</div>{% if view_mode == 'provider' %}<div class="bg-white px-4 py-2 rounded-full border border-gray-200 flex items-center gap-3 shadow-sm"><span class="text-xs font-bold uppercase tracking-wider text-gray-500">Availability</span><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0"/><label for="toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label></div><span class="text-xs font-bold text-green-500">ONLINE</span></div>{% endif %}</header>
                  {% if view_mode == 'provider' %}<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"><div class="col-span-2 bg-black text-white p-8 rounded-2xl shadow-xl relative overflow-hidden group"><div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition"><i class="fa-solid fa-wallet text-9xl"></i></div><p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Wallet Balance</p><h2 class="text-4xl font-serif mb-6">$1,250.00</h2><div class="flex gap-3"><button class="bg-white text-black px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-200 transition">Withdraw</button></div></div><div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between"><div class="icon bg-blue-50 text-blue-500 w-10 h-10 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-briefcase"></i></div><div><h3 class="text-2xl font-bold">12</h3><p class="text-xs text-gray-400 uppercase tracking-wider">Jobs Completed</p></div></div><div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between"><div class="icon bg-yellow-50 text-yellow-500 w-10 h-10 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-star"></i></div><div><h3 class="text-2xl font-bold">4.9</h3><p class="text-xs text-gray-400 uppercase tracking-wider">Client Rating</p></div></div></div>{% else %}<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"><div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"><div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Active Projects</div><div class="text-3xl font-serif">3</div></div><div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"><div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Total Spend</div><div class="text-3xl font-serif">$400</div></div></div>{% endif %}
             </div>
+
 
             <!-- SECTION: SUPPORT -->
             <div id="help" class="content-section {% if view_mode != 'provider' %}active-section{% endif %}">
                  <div class="max-w-4xl mx-auto mt-4"><header class="mb-8"><h1 class="text-2xl font-serif text-gray-900">BrijeshPI Intelligence</h1><p class="text-sm text-gray-500 font-light mt-1">How can we assist you today?</p></header><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="bg-black text-white px-6 py-4 flex items-center justify-between"><div><h2 class="text-sm font-bold uppercase tracking-widest">AI Support Agent</h2></div><div class="flex items-center gap-2"><span class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Online</span><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span></div></div><div id="embedded-chat-box" class="h-[450px] overflow-y-auto p-6 bg-gray-50 space-y-4 font-sans text-sm"><div class="flex justify-start animate-fade-in"><div class="bg-white border border-gray-200 text-gray-800 px-5 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">Hello {{ user.username }}! I am your BrijeshPI assistant. Ask me anything.</div></div></div><div class="p-4 bg-white border-t border-gray-100"><div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-2 py-2 focus-within:border-black focus-within:bg-white transition-all duration-300"><input id="embedded-user-input" type="text" placeholder="Type your request here..." class="flex-1 bg-transparent text-gray-900 text-sm px-4 py-2 focus:outline-none" onkeypress="if(event.key === 'Enter') sendEmbeddedMessage()"><button onclick="sendEmbeddedMessage()" class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-md"><i class="fa-solid fa-arrow-up text-sm"></i></button></div></div></div></div>
             </div>
 
+
             <!-- SECTION: SOCIAL EXPLORE FEED -->
             <div id="feed" class="content-section">
-                <!-- Stories Bar -->
-                <div class="flex gap-4 mb-8 overflow-x-auto no-scrollbar py-2">
-                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-red-500 p-1"><img src="https://i.pravatar.cc/150?img=12" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] font-bold">Trending</span></div>
-                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-gray-200 p-1"><img src="https://i.pravatar.cc/150?img=33" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] text-gray-500">Plumbers</span></div>
-                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-gray-200 p-1"><img src="https://i.pravatar.cc/150?img=5" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] text-gray-500">Electric</span></div>
-                </div>
+                <div class="max-w-xl mx-auto mt-4">
+                    <!-- SEARCH -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8"><form action="/dashboard" method="GET" class="flex gap-2"><input type="hidden" name="section" value="feed"><input type="text" name="q" placeholder="Search users..." value="{{ search_query }}" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none"><button class="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold">Search</button></form>{% if search_results %}<div class="mt-4 space-y-2">{% for p in search_results %}<div class="flex justify-between p-2 bg-gray-50 rounded"><div class="flex gap-2 items-center"><div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center font-bold">{{ p.username[0] }}</div><a href="/profile/{{ p.username }}" class="font-bold text-sm">{{ p.username }}</a></div><a href="/profile/{{ p.username }}" class="text-xs border px-2 py-1 rounded bg-white">View</a></div>{% endfor %}</div>{% endif %}</div>
 
-                <div class="max-w-xl mx-auto">
-                    <!-- ⭐ NEW: SEARCH & FOLLOW PEOPLE ⭐ -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-                        <h2 class="text-sm font-bold mb-4 uppercase tracking-widest text-gray-400">Find People to Follow</h2>
-                        <form action="/dashboard" method="GET" class="flex gap-2 mb-4">
-                            <input type="hidden" name="section" value="feed">
-                            <input type="text" name="q" placeholder="Search by name (e.g. Bala, Brijesh)..." value="{{ search_query }}" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-black transition">
-                            <button type="submit" class="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold">Search</button>
-                        </form>
 
-                        {% if search_results %}
-                            <div class="space-y-3">
-                                {% for person in search_results %}
-                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                                                {{ person.username[0] | upper }}
-                                            </div>
-                                            <div>
-                                                <!-- ✅ CLICKABLE PROFILE LINK ✅ -->
-                                                <a href="/profile/{{ person.username }}" class="text-sm font-bold hover:underline hover:text-blue-600 block">{{ person.username }}</a>
-                                                <p class="text-[10px] text-gray-500">{% if person.is_provider %}Service Partner{% else %}User{% endif %}</p>
-                                            </div>
-                                        </div>
-                                        {% if user.is_following(person) %}
-                                            <form action="/unfollow/{{ person.id }}" method="POST">
-                                                <input type="hidden" name="q" value="{{ search_query }}">
-                                                <button class="bg-gray-200 text-black px-3 py-1 rounded-full text-[10px] font-bold hover:bg-gray-300 transition">Following</button>
-                                            </form>
-                                        {% else %}
-                                            <form action="/follow/{{ person.id }}" method="POST">
-                                                <input type="hidden" name="q" value="{{ search_query }}">
-                                                <button class="bg-black text-white px-3 py-1 rounded-full text-[10px] font-bold hover:bg-gray-800 transition">Follow</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% elif search_query %}
-                            <p class="text-xs text-gray-400 text-center py-2">No users found with that name.</p>
-                        {% endif %}
-                    </div>
+                    <!-- JOB MARKET (Provider Only) -->
 
-                    {% if view_mode == 'provider' %}
-                        <!-- PROVIDER FEED (Job Opportunities) -->
-                        <header class="mb-8 text-center"><h1 class="text-2xl font-serif">Job Market</h1><p class="text-sm text-gray-500">Real-time opportunities in your area.</p></header>
-                        <div class="bg-white rounded-xl border border-gray-200 mb-6 shadow-sm"><div class="p-4 flex items-center justify-between"><div class="flex items-center gap-3"><img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full"><div><p class="text-sm font-bold">Alice Johnson</p><p class="text-[10px] text-gray-500">Downtown • 10 mins ago</p></div></div><span class="bg-red-50 text-red-500 text-[10px] font-bold px-2 py-1 rounded">URGENT</span></div><div class="h-64 bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover"></div><div class="p-4"><h3 class="font-bold text-lg mb-1">Kitchen Sink Leaking Badly</h3><p class="text-sm text-gray-600 mb-4">"Water is everywhere. Need someone to fix this pipe immediately."</p><div class="flex gap-2"><button class="flex-1 bg-black text-white py-2 rounded-lg text-xs font-bold uppercase">Accept Job ($80)</button><button class="w-10 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50"><i class="fa-regular fa-bookmark"></i></button></div></div></div>
-                    {% else %}
-                        <!-- CLIENT FEED (Service Inspiration) -->
-                        <header class="mb-8 text-center"><h1 class="text-2xl font-serif">Inspiration</h1><p class="text-sm text-gray-500">Top rated services tailored for you.</p></header>
-                        <div class="bg-white rounded-xl border border-gray-200 mb-6 shadow-sm"><div class="p-4 flex items-center justify-between"><div class="flex items-center gap-3"><img src="https://i.pravatar.cc/150?img=11" class="w-10 h-10 rounded-full border border-gray-100"><div><p class="text-sm font-bold">Mike's Modern Renovations</p><p class="text-[10px] text-gray-500">San Francisco • Top Rated</p></div></div></div><div class="h-80 bg-gray-100 overflow-hidden relative"><img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover"><div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">Start at $200</div></div><div class="p-4"><div class="flex gap-4 mb-3 text-xl"><i class="fa-regular fa-heart cursor-pointer hover:text-red-500"></i><i class="fa-regular fa-comment cursor-pointer hover:text-blue-500"></i><i class="fa-regular fa-paper-plane cursor-pointer"></i></div><p class="text-sm"><span class="font-bold">Mike's Modern Renovations</span> We just finished this beautiful minimalist kitchen. Ready for your next project?</p><button class="mt-4 w-full bg-black text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-800">Book Now</button></div></div>
-                    {% endif %}
+
+                    <!-- INFINITE SCROLL FEED -->
+                    <div class="mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-red-500"></i> <h2 class="font-bold text-lg">Trending Now</h2></div>
+                    <div id="feed-container">{% for item in feed_items %}<div class="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 animate-fade-in"><div class="p-3 flex items-center justify-between"><div class="flex items-center gap-3"><img src="{{ item.avatar }}" class="w-8 h-8 rounded-full border p-1"><p class="text-sm font-bold">{{ item.source }}</p></div><i class="fa-solid fa-ellipsis text-gray-400"></i></div><a href="{{ item.link }}" target="_blank" class="block group relative"><div class="relative h-64 overflow-hidden"><img src="{{ item.image }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6"><a href="{{ item.link }}" target="_blank" class="text-white font-bold uppercase tracking-wider text-xs border border-white/50 px-4 py-2 rounded-full hover:bg-white hover:text-black transition">Read Article</a></div></div></a><div class="px-4 py-3 flex gap-4 text-xl"><i class="fa-regular fa-heart hover:text-red-500 cursor-pointer"></i><i class="fa-regular fa-comment hover:text-blue-500 cursor-pointer"></i><i class="fa-regular fa-paper-plane hover:text-green-500 cursor-pointer"></i></div><div class="px-4 pb-4"><p class="text-sm"><span class="font-bold mr-2">{{ item.source }}</span> {{ item.title }}</p></div></div>{% endfor %}</div><div id="feed-loading" class="text-center p-6 hidden"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-gray-400"></i></div><script>let isLoading=false;const feedContainer=document.getElementById("feed-container");const loadingSpinner=document.getElementById("feed-loading");function createPostHTML(item){return `<div class="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 animate-fade-in"><div class="p-3 flex items-center justify-between"><div class="flex items-center gap-3"><img src="${item.avatar}" class="w-8 h-8 rounded-full border p-1"><p class="text-sm font-bold">${item.source}</p></div><i class="fa-solid fa-ellipsis text-gray-400"></i></div><a href="${item.link}" target="_blank" class="block group relative"><div class="relative h-64 overflow-hidden"><img src="${item.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6"><a href="${item.link}" target="_blank" class="text-white font-bold uppercase tracking-wider text-xs border border-white/50 px-4 py-2 rounded-full hover:bg-white hover:text-black transition">Read Article</a></div></div></a><div class="px-4 py-3 flex gap-4 text-xl"><i class="fa-regular fa-heart hover:text-red-500 cursor-pointer"></i><i class="fa-regular fa-comment hover:text-blue-500 cursor-pointer"></i><i class="fa-regular fa-paper-plane hover:text-green-500 cursor-pointer"></i></div><div class="px-4 pb-4"><p class="text-sm"><span class="font-bold mr-2">${item.source}</span> ${item.title}</p></div></div>`;}async function loadMorePosts(){if(isLoading)return;isLoading=true;loadingSpinner.classList.remove("hidden");try{const response=await fetch("/api/feed");const newItems=await response.json();newItems.forEach(item=>{feedContainer.insertAdjacentHTML("beforeend",createPostHTML(item));});}catch(e){console.error(e);}finally{isLoading=false;loadingSpinner.classList.add("hidden");}}const mainContent=document.querySelector("main");mainContent.addEventListener("scroll",()=>{if(mainContent.scrollTop+mainContent.clientHeight>=mainContent.scrollHeight-100){loadMorePosts();}});</script>
                 </div>
             </div>
+
 
             <!-- SECTION: ORDERS -->
             <div id="orders" class="content-section">
                  <header class="mb-10"><h1 class="text-2xl font-serif">{% if view_mode == 'provider' %}Job Center{% else %}My Orders{% endif %}</h1></header><div class="bg-white rounded-xl border border-gray-100 p-8 text-center"><div class="inline-block p-4 bg-gray-50 rounded-full mb-4 text-gray-300"><i class="fa-solid fa-box-open text-2xl"></i></div><h3 class="text-lg font-medium text-gray-900">No active items</h3></div>
             </div>
+
 
             <!-- SECTION: PROFILE -->
             <div id="profile" class="content-section">
@@ -141,54 +98,51 @@
         </div>
     </main>
 
-    <!-- ✅ THIS IS THE FIXED SCRIPT ✅ -->
+
     <script>
         function showSection(sectionId) {
-            // Hide all sections
             document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active-section'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             
-            // Show target section
             const targetSection = document.getElementById(sectionId);
             const targetNav = document.getElementById('nav-' + sectionId);
             
             if (targetSection) targetSection.classList.add('active-section');
             if (targetNav) targetNav.classList.add('active');
 
-            // Update URL without reloading (Optional, keeps state on refresh)
+
             const url = new URL(window.location);
             url.searchParams.set('section', sectionId);
             window.history.pushState({}, '', url);
         }
 
-        // --- INITIALIZATION LOGIC ---
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const sectionParam = urlParams.get('section');
             const queryParam = urlParams.get('q');
 
+
             if (queryParam) {
-                // If searching, always go to feed
                 showSection('feed');
             } else if (sectionParam) {
-                // If specific section requested (e.g. from Back button), go there
                 showSection(sectionParam);
             } else {
-                // Default fallback
                 {% if view_mode == 'provider' %}
                     showSection('explore');
                 {% else %}
-                    // Force FEED as default if HELP is annoying you, otherwise keep HELP
                     showSection('feed'); 
                 {% endif %}
             }
         });
+
 
         async function sendEmbeddedMessage() {
             const input = document.getElementById("embedded-user-input");
             const box = document.getElementById("embedded-chat-box");
             const text = input.value.trim();
             if (!text) return;
+
 
             const userWrapper = document.createElement("div");
             userWrapper.className = "flex justify-end animate-fade-in mb-4";
@@ -197,12 +151,14 @@
             input.value = "";
             box.scrollTop = box.scrollHeight;
 
+
             const loadingWrapper = document.createElement("div");
             loadingWrapper.id = "embedded-loading";
             loadingWrapper.className = "flex justify-start animate-pulse mb-4";
             loadingWrapper.innerHTML = `<div class="bg-gray-200 text-gray-500 px-4 py-2 rounded-full text-xs font-medium tracking-wide">Thinking...</div>`;
             box.appendChild(loadingWrapper);
             box.scrollTop = box.scrollHeight;
+
 
             try {
                 const res = await fetch("/chat", {
@@ -212,9 +168,11 @@
                 const data = await res.json();
                 if(document.getElementById("embedded-loading")) box.removeChild(document.getElementById("embedded-loading"));
 
+
                 let replyHtml = data.reply
                     .replace(/\n/g, "<br>")
                     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-600 underline font-bold hover:text-blue-800">$1</a>');
+
 
                 const aiWrapper = document.createElement("div");
                 aiWrapper.className = "flex justify-start animate-fade-in mb-4";
