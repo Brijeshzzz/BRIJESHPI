@@ -8,14 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --brand-black: #050505;
-            --brand-white: #FFFFFF;
-            --brand-mint: #D1FAE5; 
-            --mouse-glow: rgba(16, 185, 129, 0.15); 
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.6);
-        }
+        :root { --brand-black: #050505; --brand-white: #FFFFFF; }
         body { font-family: 'Sora', sans-serif; background-color: #F9FAFB; color: var(--brand-black); }
         h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
         
@@ -27,7 +20,14 @@
         .nav-item:hover { background-color: rgba(0,0,0,0.03); color: #000; }
         .nav-item.active { background-color: #000; color: #fff; }
 
-        /* AI Chat Animations */
+        /* Custom Toggles */
+        .toggle-checkbox:checked { right: 0; border-color: #10B981; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
+
+        /* Hide scrollbar for stories */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
     </style>
@@ -39,21 +39,49 @@
         <div>
             <div class="mb-12">
                 <h2 class="text-2xl font-bold tracking-widest uppercase">BrijeshPI</h2>
-                <p class="text-[10px] text-gray-400 tracking-[0.3em] uppercase mt-1">Dashboard</p>
+                <p class="text-[10px] text-gray-400 tracking-[0.3em] uppercase mt-1">
+                    {% if view_mode == 'provider' %}PARTNER DASHBOARD{% else %}CLIENT DASHBOARD{% endif %}
+                </p>
             </div>
+            
             <nav class="space-y-2">
-                <a href="#" onclick="showSection('explore')" id="nav-explore" class="nav-item active flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
-                    <i class="fa-solid fa-compass"></i> Explore
-                </a>
-                <a href="#" onclick="showSection('help')" id="nav-help" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
-                    <i class="fa-solid fa-life-ring"></i> Help Center
-                </a>
-                <a href="#" onclick="showSection('orders')" id="nav-orders" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
-                    <i class="fa-solid fa-box"></i> Orders
-                </a>
-                <a href="#" onclick="showSection('profile')" id="nav-profile" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
-                    <i class="fa-regular fa-user"></i> Profile
-                </a>
+                {% if view_mode == 'provider' %}
+                    <!-- BUSINESS VIEW ORDER -->
+                    <a href="#" onclick="showSection('explore')" id="nav-explore" class="nav-item active flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-compass"></i> Overview
+                    </a>
+                    <a href="#" onclick="showSection('help')" id="nav-help" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-life-ring"></i> Support
+                    </a>
+                    <!-- NEW: FEED -->
+                    <a href="#" onclick="showSection('feed')" id="nav-feed" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-brands fa-instagram"></i> Explore Feed
+                    </a>
+                    <a href="#" onclick="showSection('orders')" id="nav-orders" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-briefcase"></i> Job Center
+                    </a>
+                    <a href="#" onclick="showSection('profile')" id="nav-profile" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-regular fa-user"></i> Business Profile
+                    </a>
+                {% else %}
+                    <!-- CLIENT VIEW ORDER -->
+                    <a href="#" onclick="showSection('help')" id="nav-help" class="nav-item active flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-robot"></i> AI Agent (Support)
+                    </a>
+                    <a href="#" onclick="showSection('explore')" id="nav-explore" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-compass"></i> Overview
+                    </a>
+                    <!-- NEW: FEED -->
+                    <a href="#" onclick="showSection('feed')" id="nav-feed" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-brands fa-instagram"></i> Inspiration Feed
+                    </a>
+                    <a href="#" onclick="showSection('orders')" id="nav-orders" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-solid fa-box"></i> Orders
+                    </a>
+                    <a href="#" onclick="showSection('profile')" id="nav-profile" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-all">
+                        <i class="fa-regular fa-user"></i> Profile
+                    </a>
+                {% endif %}
             </nav>
         </div>
         <div>
@@ -65,136 +93,55 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 overflow-y-auto relative bg-[#FAFAFA]">
-        <!-- Top Mobile Header -->
-        <div class="md:hidden flex items-center justify-between p-6 bg-white border-b border-gray-200 sticky top-0 z-30">
-            <span class="font-bold tracking-widest uppercase">BPI</span>
-            <button class="text-gray-600"><i class="fa-solid fa-bars text-xl"></i></button>
-        </div>
-
         <div class="p-8 md:p-12 max-w-7xl mx-auto min-h-screen">
             
-            <!-- EXPLORE SECTION -->
-            <div id="explore" class="content-section active-section">
-                <header class="mb-10">
-                    <h1 class="text-3xl mb-2">Welcome back</h1>
-                    <p class="text-gray-500 font-light">Here is what's happening with your projects today.</p>
-                </header>
+            <!-- SECTION: OVERVIEW (Default for Provider) -->
+            <div id="explore" class="content-section {% if view_mode == 'provider' %}active-section{% endif %}">
+                 <header class="mb-10 flex justify-between items-end"><div><h1 class="text-3xl mb-2">Welcome back, {{ user.username }}</h1>{% if view_mode == 'provider' %}<p class="text-green-600 font-medium">✨ Business Dashboard</p>{% else %}<p class="text-gray-500 font-light">Your Personal Dashboard</p>{% endif %}</div>{% if view_mode == 'provider' %}<div class="bg-white px-4 py-2 rounded-full border border-gray-200 flex items-center gap-3 shadow-sm"><span class="text-xs font-bold uppercase tracking-wider text-gray-500">Availability</span><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0"/><label for="toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label></div><span class="text-xs font-bold text-green-500">ONLINE</span></div>{% endif %}</header>
+                 {% if view_mode == 'provider' %}<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"><div class="col-span-2 bg-black text-white p-8 rounded-2xl shadow-xl relative overflow-hidden group"><div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition"><i class="fa-solid fa-wallet text-9xl"></i></div><p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Wallet Balance</p><h2 class="text-4xl font-serif mb-6">$1,250.00</h2><div class="flex gap-3"><button class="bg-white text-black px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-200 transition">Withdraw</button></div></div><div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between"><div class="icon bg-blue-50 text-blue-500 w-10 h-10 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-briefcase"></i></div><div><h3 class="text-2xl font-bold">12</h3><p class="text-xs text-gray-400 uppercase tracking-wider">Jobs Completed</p></div></div><div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between"><div class="icon bg-yellow-50 text-yellow-500 w-10 h-10 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-star"></i></div><div><h3 class="text-2xl font-bold">4.9</h3><p class="text-xs text-gray-400 uppercase tracking-wider">Client Rating</p></div></div></div>{% else %}<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"><div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"><div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Active Projects</div><div class="text-3xl font-serif">3</div></div><div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"><div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Total Spend</div><div class="text-3xl font-serif">$400</div></div></div>{% endif %}
+            </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Active Projects</div>
-                        <div class="text-3xl font-serif">3</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Pending Actions</div>
-                        <div class="text-3xl font-serif">1</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Total Spend</div>
-                        <div class="text-3xl font-serif">,400</div>
-                    </div>
+            <!-- SECTION: SUPPORT (Default for Client) -->
+            <div id="help" class="content-section {% if view_mode != 'provider' %}active-section{% endif %}">
+                 <div class="max-w-4xl mx-auto mt-4"><header class="mb-8"><h1 class="text-2xl font-serif text-gray-900">BrijeshPI Intelligence</h1><p class="text-sm text-gray-500 font-light mt-1">How can we assist you today?</p></header><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="bg-black text-white px-6 py-4 flex items-center justify-between"><div><h2 class="text-sm font-bold uppercase tracking-widest">AI Support Agent</h2></div><div class="flex items-center gap-2"><span class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Online</span><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span></div></div><div id="embedded-chat-box" class="h-[450px] overflow-y-auto p-6 bg-gray-50 space-y-4 font-sans text-sm"><div class="flex justify-start animate-fade-in"><div class="bg-white border border-gray-200 text-gray-800 px-5 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">Hello {{ user.username }}! I am your BrijeshPI assistant. Ask me anything.</div></div></div><div class="p-4 bg-white border-t border-gray-100"><div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-2 py-2 focus-within:border-black focus-within:bg-white transition-all duration-300"><input id="embedded-user-input" type="text" placeholder="Type your request here..." class="flex-1 bg-transparent text-gray-900 text-sm px-4 py-2 focus:outline-none" onkeypress="if(event.key === 'Enter') sendEmbeddedMessage()"><button onclick="sendEmbeddedMessage()" class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-md"><i class="fa-solid fa-arrow-up text-sm"></i></button></div></div></div></div>
+            </div>
+
+            <!-- SECTION: SOCIAL EXPLORE FEED -->
+            <div id="feed" class="content-section">
+                <!-- Stories Bar -->
+                <div class="flex gap-4 mb-8 overflow-x-auto no-scrollbar py-2">
+                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-red-500 p-1"><img src="https://i.pravatar.cc/150?img=12" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] font-bold">Trending</span></div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-gray-200 p-1"><img src="https://i.pravatar.cc/150?img=33" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] text-gray-500">Plumbers</span></div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer"><div class="w-16 h-16 rounded-full border-2 border-gray-200 p-1"><img src="https://i.pravatar.cc/150?img=5" class="w-full h-full rounded-full object-cover"></div><span class="text-[10px] text-gray-500">Electric</span></div>
+                </div>
+
+                <div class="max-w-xl mx-auto">
+                    {% if view_mode == 'provider' %}
+                        <!-- == PROVIDER FEED (Job Opportunities) == -->
+                         <header class="mb-8 text-center"><h1 class="text-2xl font-serif">Job Market</h1><p class="text-sm text-gray-500">Real-time opportunities in your area.</p></header>
+                        <div class="bg-white rounded-xl border border-gray-200 mb-6 shadow-sm"><div class="p-4 flex items-center justify-between"><div class="flex items-center gap-3"><img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full"><div><p class="text-sm font-bold">Alice Johnson</p><p class="text-[10px] text-gray-500">Downtown • 10 mins ago</p></div></div><span class="bg-red-50 text-red-500 text-[10px] font-bold px-2 py-1 rounded">URGENT</span></div><div class="h-64 bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover"></div><div class="p-4"><h3 class="font-bold text-lg mb-1">Kitchen Sink Leaking Badly</h3><p class="text-sm text-gray-600 mb-4">"Water is everywhere. Need someone to fix this pipe immediately."</p><div class="flex gap-2"><button class="flex-1 bg-black text-white py-2 rounded-lg text-xs font-bold uppercase">Accept Job ($80)</button><button class="w-10 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50"><i class="fa-regular fa-bookmark"></i></button></div></div></div>
+                    {% else %}
+                        <!-- == CLIENT FEED (Service Inspiration) == -->
+                        <header class="mb-8 text-center"><h1 class="text-2xl font-serif">Inspiration</h1><p class="text-sm text-gray-500">Top rated services tailored for you.</p></header>
+                        <div class="bg-white rounded-xl border border-gray-200 mb-6 shadow-sm"><div class="p-4 flex items-center justify-between"><div class="flex items-center gap-3"><img src="https://i.pravatar.cc/150?img=11" class="w-10 h-10 rounded-full border border-gray-100"><div><p class="text-sm font-bold">Mike's Modern Renovations</p><p class="text-[10px] text-gray-500">San Francisco • Top Rated</p></div></div><button class="text-black hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button></div><div class="h-80 bg-gray-100 overflow-hidden relative"><img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover"><div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">Start at $200</div></div><div class="p-4"><div class="flex gap-4 mb-3 text-xl"><i class="fa-regular fa-heart cursor-pointer hover:text-red-500"></i><i class="fa-regular fa-comment cursor-pointer hover:text-blue-500"></i><i class="fa-regular fa-paper-plane cursor-pointer"></i></div><p class="text-sm"><span class="font-bold">Mike's Modern Renovations</span> We just finished this beautiful minimalist kitchen. Ready for your next project?</p><button class="mt-4 w-full bg-black text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-800">Book Now</button></div></div>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- HELP CENTER SECTION (AI AGENT) -->
-            <div id="help" class="content-section">
-                <div class="max-w-4xl mx-auto mt-4">
-                    <header class="mb-8">
-                        <h1 class="text-2xl font-serif text-gray-900">Help Center</h1>
-                        <p class="text-sm text-gray-500 font-light mt-1">Instant AI support and knowledge base.</p>
-                    </header>
-
-                    <!-- Embedded AI Agent Box -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <!-- Chat Header -->
-                        <div class="bg-black text-white px-6 py-4 flex items-center justify-between">
-                            <div>
-                                <h2 class="text-sm font-bold uppercase tracking-widest">BrijeshPI Intelligence</h2>
-                                <p class="text-xs text-gray-400 mt-0.5">Powered by Groq LLaMA-3</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Online</span>
-                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            </div>
-                        </div>
-
-                        <!-- Chat Messages Area -->
-                        <div id="embedded-chat-box" class="h-[450px] overflow-y-auto p-6 bg-gray-50 space-y-4 font-sans text-sm">
-                            <!-- Intro Message -->
-                            <div class="flex justify-start animate-fade-in">
-                                <div class="bg-white border border-gray-200 text-gray-800 px-5 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
-                                    Hello! I am your BrijeshPI AI Agent. I can help you navigate your dashboard, understand your analytics, or manage your account settings. How can I assist you today?
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Chat Input Area -->
-                        <div class="p-4 bg-white border-t border-gray-100">
-                            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-2 py-2 focus-within:border-black focus-within:bg-white transition-all duration-300">
-                                <input id="embedded-user-input" type="text" 
-                                       placeholder="Ask a question..." 
-                                       class="flex-1 bg-transparent text-gray-900 text-sm px-4 py-2 focus:outline-none"
-                                       onkeypress="if(event.key === 'Enter') sendEmbeddedMessage()">
-                                
-                                <button onclick="sendEmbeddedMessage()" 
-                                        class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-md">
-                                    <i class="fa-solid fa-arrow-up text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ORDERS SECTION -->
+            <!-- SECTION: ORDERS -->
             <div id="orders" class="content-section">
-                <header class="mb-10">
-                    <h1 class="text-2xl font-serif">Recent Orders</h1>
-                    <p class="text-gray-500 font-light">Track and manage your project requests.</p>
-                </header>
-                <div class="bg-white rounded-xl border border-gray-100 p-8 text-center">
-                    <div class="inline-block p-4 bg-gray-50 rounded-full mb-4 text-gray-300">
-                        <i class="fa-solid fa-box-open text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900">No orders yet</h3>
-                    <p class="text-sm text-gray-500 mt-2 mb-6">Start a new project to see it here.</p>
-                    <button class="px-6 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full hover:bg-gray-800 transition">Start Project</button>
-                </div>
+                 <header class="mb-10"><h1 class="text-2xl font-serif">{% if view_mode == 'provider' %}Job Center{% else %}My Orders{% endif %}</h1></header><div class="bg-white rounded-xl border border-gray-100 p-8 text-center"><div class="inline-block p-4 bg-gray-50 rounded-full mb-4 text-gray-300"><i class="fa-solid fa-box-open text-2xl"></i></div><h3 class="text-lg font-medium text-gray-900">No active items</h3></div>
             </div>
 
-            <!-- PROFILE SECTION -->
+            <!-- SECTION: PROFILE -->
             <div id="profile" class="content-section">
-                <header class="mb-10">
-                    <h1 class="text-2xl font-serif">Account Settings</h1>
-                    <p class="text-gray-500 font-light">Manage your personal information.</p>
-                </header>
-                <div class="bg-white rounded-xl border border-gray-100 p-8 max-w-2xl">
-                    <form class="space-y-6">
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">First Name</label>
-                                <input type="text" value="Brijesh" class="w-full border-b border-gray-200 pb-2 text-sm focus:border-black outline-none transition">
-                            </div>
-                            <div>
-                                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Last Name</label>
-                                <input type="text" value="User" class="w-full border-b border-gray-200 pb-2 text-sm focus:border-black outline-none transition">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Email Address</label>
-                            <input type="email" value="user@brijeshpi.com" class="w-full border-b border-gray-200 pb-2 text-sm focus:border-black outline-none transition">
-                        </div>
-                        <button class="px-6 py-3 bg-black text-white text-xs uppercase tracking-widest rounded-full hover:bg-gray-800 transition mt-4">Save Changes</button>
-                    </form>
-                </div>
+                 <header class="mb-10"><h1 class="text-2xl font-serif">Settings</h1></header><div class="bg-white rounded-xl border border-gray-100 p-8 max-w-3xl"><form class="space-y-6"><div class="grid grid-cols-2 gap-6"><div><label class="block text-xs uppercase text-gray-500 mb-2">Username</label><input type="text" value="{{ user.username }}" class="w-full border-b border-gray-200 pb-2 text-sm outline-none" readonly></div><div><label class="block text-xs uppercase text-gray-500 mb-2">Email</label><input type="email" value="{{ user.email }}" class="w-full border-b border-gray-200 pb-2 text-sm outline-none" readonly></div></div></form><div class="mt-12 pt-8 border-t border-gray-100">{% if not user.is_provider %}<div class="bg-gray-50 p-6 rounded-lg border border-gray-200"><h3 class="text-lg font-bold mb-2">Want to sell your services?</h3><form action="/upgrade-to-provider" method="POST"><button class="px-6 py-3 bg-black text-white text-xs uppercase tracking-widest rounded-full">Upgrade to Business Account</button></form></div>{% else %}<div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex justify-between items-center"><div><h3 class="text-lg font-bold">Switch Account View</h3></div><div class="flex gap-2"><a href="/switch-view/client" class="{% if view_mode == 'client' %}bg-black text-white{% else %}bg-white border border-gray-300 text-gray-600{% endif %} px-4 py-2 text-[10px] uppercase font-bold rounded-full transition">Client View</a><a href="/switch-view/provider" class="{% if view_mode == 'provider' %}bg-black text-white{% else %}bg-white border border-gray-300 text-gray-600{% endif %} px-4 py-2 text-[10px] uppercase font-bold rounded-full transition">Business View</a></div></div>{% endif %}</div></div>
             </div>
 
         </div>
     </main>
 
     <script>
-        // Navigation Logic
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active-section'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -202,7 +149,7 @@
             document.getElementById('nav-' + sectionId).classList.add('active');
         }
 
-        // Embedded AI Chat Logic
+        // --- UPDATED AUTO-SCROLL CHAT FUNCTION ---
         async function sendEmbeddedMessage() {
             const input = document.getElementById("embedded-user-input");
             const box = document.getElementById("embedded-chat-box");
@@ -217,7 +164,7 @@
             box.appendChild(userWrapper);
             
             input.value = "";
-            box.scrollTop = box.scrollHeight;
+            box.scrollTop = box.scrollHeight; // Force scroll
 
             // 2. Add Loading Bubble
             const loadingWrapper = document.createElement("div");
@@ -225,10 +172,9 @@
             loadingWrapper.className = "flex justify-start animate-pulse mb-4";
             loadingWrapper.innerHTML = `<div class="bg-gray-200 text-gray-500 px-4 py-2 rounded-full text-xs font-medium tracking-wide">Thinking...</div>`;
             box.appendChild(loadingWrapper);
-            box.scrollTop = box.scrollHeight;
+            box.scrollTop = box.scrollHeight; // Force scroll
 
             try {
-                // 3. Call Flask API
                 const res = await fetch("/chat", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
@@ -236,14 +182,13 @@
                 });
                 const data = await res.json();
 
-                // 4. Remove Loading
                 if(document.getElementById("embedded-loading")) {
                     box.removeChild(document.getElementById("embedded-loading"));
                 }
 
-                // 5. Parse Markdown Link -> HTML Link
+                // 3. Add AI Reply
                 let replyHtml = data.reply
-                    .replace(/\n/g, "<br>") // Newlines
+                    .replace(/\n/g, "<br>")
                     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-600 underline font-bold hover:text-blue-800">$1</a>');
 
                 const aiWrapper = document.createElement("div");
@@ -251,17 +196,16 @@
                 aiWrapper.innerHTML = `<div class="bg-white border border-gray-200 text-gray-800 px-5 py-3 rounded-2xl rounded-tl-none shadow-sm text-sm max-w-[85%] leading-relaxed">${replyHtml}</div>`;
                 box.appendChild(aiWrapper);
 
+                // 4. Force Final Scroll with AnimationFrame
+                requestAnimationFrame(() => {
+                    box.scrollTop = box.scrollHeight;
+                });
+
             } catch (err) {
                 if(document.getElementById("embedded-loading")) {
                     box.removeChild(document.getElementById("embedded-loading"));
                 }
-                const errDiv = document.createElement("div");
-                errDiv.className = "text-center text-xs text-red-400 mt-2 mb-4";
-                errDiv.innerText = "Connection error. Please try again.";
-                box.appendChild(errDiv);
             }
-            
-            box.scrollTop = box.scrollHeight;
         }
     </script>
 </body>

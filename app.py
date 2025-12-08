@@ -29,8 +29,20 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False) 
-    role = db.Column(db.String(20), default="user")
+    password = db.Column(db.String(200), nullable=False) # Increased length for Hash
+    role = db.Column(db.String(20), default="user") 
+    
+    # Provider Logic
+    is_provider = db.Column(db.Boolean, default=False) 
+    provider_profile = db.relationship('ProviderProfile', backref='user', uselist=False)
+
+class ProviderProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
+    service_category = db.Column(db.String(100))
+    experience_years = db.Column(db.Integer)
+    hourly_rate = db.Column(db.String(50))
+    bio = db.Column(db.Text)
 
 class ServiceRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,12 +60,12 @@ class Service(db.Model):
     description = db.Column(db.String(500))
     icon = db.Column(db.String(50), default="fas fa-tools")
 
-# --- NEW: CAMPAIGN MODEL FOR MARKETING ---
+# Marketing Model
 class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    platform = db.Column(db.String(50)) # e.g., Facebook, Google, Email
-    status = db.Column(db.String(20)) # Active, Paused, Completed
+    platform = db.Column(db.String(50)) 
+    status = db.Column(db.String(20)) 
     reach = db.Column(db.Integer, default=0)
     conversions = db.Column(db.Integer, default=0)
     budget_spent = db.Column(db.Float, default=0.0)
@@ -88,9 +100,7 @@ def dashboard():
     new_bookings = ServiceRequest.query.filter_by(status='New Booking').count()
     completed = ServiceRequest.query.filter_by(status='Completed').count()
     rejected = ServiceRequest.query.filter_by(status='Rejected').count()
-    
     rate = round((completed / total_requests) * 100, 1) if total_requests > 0 else 0
-
     return render_template('admin/dashboard.html', total=total_requests, new=new_bookings, completed=completed, rejected=rejected, rate=rate)
 
 @admin_bp.route('/requests')
@@ -100,7 +110,6 @@ def requests():
     search_query = request.args.get('search', '').strip()
     service_filter = request.args.get('service', '').strip()
     date_filter = request.args.get('date', '').strip()
-
     query = ServiceRequest.query.filter(ServiceRequest.status == 'New Booking')
 
     if search_query:
@@ -181,28 +190,16 @@ def delete_service(service_id):
     if service: db.session.delete(service); db.session.commit()
     return redirect(url_for('admin.services'))
 
-# --- NEW: ADVANCED MARKETING ANALYTICS ---
 @admin_bp.route('/marketing')
 @login_required
 @admin_required
 def marketing(): 
-    # 1. Platform Growth Stats
     total_users = User.query.count()
     total_orders = ServiceRequest.query.count()
-    
-    # Simple Mock Logic for "Growth %" (In real app, compare with last month's date)
     growth_percent = 12.5 
-    revenue_estimate = total_orders * 150 # Assuming avg $150 per order
-    
-    # 2. Campaigns
+    revenue_estimate = total_orders * 150 
     campaigns = Campaign.query.all()
-    
-    return render_template('admin/marketing.html', 
-                           users=total_users, 
-                           orders=total_orders, 
-                           growth=growth_percent, 
-                           revenue=revenue_estimate,
-                           campaigns=campaigns)
+    return render_template('admin/marketing.html', users=total_users, orders=total_orders, growth=growth_percent, revenue=revenue_estimate, campaigns=campaigns)
 
 @admin_bp.route('/marketing/campaign/add', methods=['POST'])
 @login_required
@@ -249,13 +246,20 @@ def chat():
     session["chat_history"] = history
 
     system_prompt = """
-    You are Sarah, the Booking Agent.
-    GOAL: Collect 8 details. Check history first.
-    REQUIRED: 1.Name 2.Phone 3.Service 4.Issue 5.Urgency 6.Address 7.City 8.Time
-    RULES:
-    - If detail exists, MARK DONE.
-    - Ask for NEXT missing detail.
-    - IF ALL 8 ARE DONE, OUTPUT ONLY THIS JSON:
+    You are the BrijeshPI AI Assistant. 
+    Your goal is to collect 8 details from the user to book a service.
+    
+    THE 8 REQUIRED DETAILS:
+    1. Name | 2. Phone | 3. Service Type | 4. Specific Issue | 5. Urgency | 6. Address | 7. City | 8. Time
+
+    STRICT CONVERSATION RULES:
+    1. DO NOT use the name "Sarah". Refer to yourself as "BrijeshPI AI".
+    2. DO NOT output a list of "DONE" items. Keep the checklist hidden.
+    3. Speak naturally like a human.
+    4. Ask for ONLY ONE missing detail at a time.
+
+    ENDING THE CHAT:
+    When (and ONLY when) you have ALL 8 details, output EXACTLY this JSON format:
     {
       "SAVE_DB": true,
       "name": "...",
@@ -271,9 +275,10 @@ def chat():
 
     try:
         messages = [{"role": "system", "content": system_prompt}] + history
-        completion = groq_client.chat.completions.create(messages=messages, model="llama-3.3-70b-versatile", temperature=0.5)
+        completion = groq_client.chat.completions.create(messages=messages, model="llama-3.3-70b-versatile", temperature=0.6)
         ai_reply = completion.choices[0].message.content
         
+        # --- JSON HANDLING (Hidden from User) ---
         if "SAVE_DB" in ai_reply:
             try:
                 start = ai_reply.find("{")
@@ -282,7 +287,7 @@ def chat():
                     json_str = ai_reply[start:end]
                     json_data = json.loads(json_str)
                     
-                    details_text = f"Issue: {json_data.get('issue')} | City: {json_data.get('city')} | Time: {json_data.get('time')}"
+                    details_text = f"Issue: {json_data.get('issue')} | Urgency: {json_data.get('urgency')} | Address: {json_data.get('address')} | City: {json_data.get('city')} | Time: {json_data.get('time')}"
                     new_req = ServiceRequest(
                         client_name=json_data.get("name", "Unknown"),
                         service_type=json_data.get("service", "General"),
@@ -295,8 +300,10 @@ def chat():
                     db.session.commit()
                     
                     ADMIN_PHONE = "919944653073" 
+                    
+                    # ⭐ UPDATED: LONG-FORM WHATSAPP MESSAGE FORMAT ⭐
                     wa_text = f"""*New Service Request*
--------------------
+-------------------------
 *Name:* {json_data.get('name')}
 *Phone:* {json_data.get('phone')}
 *Service:* {json_data.get('service')}
@@ -307,22 +314,27 @@ def chat():
                     
                     wa_url = f"https://wa.me/{ADMIN_PHONE}?text={urllib.parse.quote(wa_text)}"
                     
+                    # Clean Success Message
                     final_reply = f"""
-                    ✅ <b>Booking Saved!</b><br>
-                    I have sent your request to the admin panel.<br><br>
-                    👇 <b>Click below to confirm on WhatsApp:</b><br>
-                    <a href='{wa_url}' target='_blank' style='display:inline-block; padding:10px 20px; background-color:#25D366; color:white; text-decoration:none; border-radius:5px; margin-top:10px;'>Open WhatsApp</a>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-bold text-green-800 mb-2">Booking Confirmed! ✅</h3>
+                        <p class="text-sm text-green-700 mb-4">I've sent your request to the team.</p>
+                        <a href='{wa_url}' target='_blank' class="inline-block px-4 py-2 bg-green-500 text-white text-xs font-bold rounded hover:bg-green-600 transition">
+                            Track on WhatsApp
+                        </a>
+                    </div>
                     """
                     session.pop("chat_history", None)
                 else:
-                    final_reply = "Error: AI format incorrect. Please type 'CONFIRM' to try again."
+                    final_reply = "I have your details, but a system error occurred. Type 'CONFIRM' to retry."
             except Exception as e:
                 print("Save Error:", e)
-                final_reply = f"System Error saving booking: {str(e)}"
+                final_reply = f"System Error: {str(e)}"
         else:
             final_reply = ai_reply
 
-        if "chat_history" in session:
+        # Only append non-system messages to history
+        if "chat_history" in session and "SAVE_DB" not in ai_reply:
             history = session["chat_history"]
             history.append({"role": "assistant", "content": final_reply})
             session["chat_history"] = history
@@ -338,39 +350,86 @@ def chat():
 @app.route("/")
 def home(): return app.send_static_file("index.html")
 
-@app.route("/dashboard.html")
+@app.route("/dashboard")
 @login_required
 def user_dashboard():
-    if current_user.role == 'admin': return redirect(url_for('admin.dashboard'))
-    return app.send_static_file("dashboard.html")
+    if current_user.role == 'admin': 
+        return redirect(url_for('admin.dashboard'))
+    
+    view_mode = session.get('view_mode', 'client')
+    if not current_user.is_provider:
+        view_mode = 'client'
 
+    return render_template("dashboard.html", user=current_user, view_mode=view_mode)
+
+# --- ACCOUNT SWITCHING ROUTES ---
+@app.route("/upgrade-to-provider", methods=["POST"])
+@login_required
+def upgrade_to_provider():
+    if not current_user.is_provider:
+        new_profile = ProviderProfile(user_id=current_user.id)
+        current_user.is_provider = True
+        db.session.add(new_profile)
+        db.session.commit()
+        session['view_mode'] = 'provider'
+        flash("You are now a Service Partner!", "success")
+    return redirect(url_for('user_dashboard'))
+
+@app.route("/switch-view/<mode>")
+@login_required
+def switch_view(mode):
+    if current_user.is_provider:
+        if mode in ['client', 'provider']:
+            session['view_mode'] = mode
+    return redirect(url_for('user_dashboard'))
+
+# ---------------- SECURE LOGIN & SIGNUP ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "").strip()
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password:
+        
+        # ✅ SECURE: Use check_password_hash
+        if user and check_password_hash(user.password, password):
             login_user(user)
             if user.role == 'admin': return redirect(url_for('admin.dashboard'))
-            else: return redirect("/dashboard.html")
-        else: flash("Invalid email or password", "error"); return redirect("/login")
+            
+            if user.is_provider:
+                session['view_mode'] = 'provider'
+            else:
+                session['view_mode'] = 'client'
+                
+            return redirect(url_for('user_dashboard'))
+        else: 
+            flash("Invalid email or password", "error")
+            return redirect("/login")
     return render_template("login.html")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email"); password = request.form.get("password"); username = request.form.get("full_name")
-        if User.query.filter_by(email=email).first(): return "Email exists!"
-        new_user = User(username=username, email=email, password=password, role="user")
-        db.session.add(new_user); db.session.commit()
+        email = request.form.get("email")
+        password = request.form.get("password")
+        username = request.form.get("full_name")
+        
+        if User.query.filter_by(email=email).first(): 
+            return "Email exists!"
+        
+        # ✅ SECURE: Hash password before saving
+        hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
+        
+        new_user = User(username=username, email=email, password=hashed_pw, role="user", is_provider=False)
+        db.session.add(new_user)
+        db.session.commit()
         return redirect("/login")
     return app.send_static_file("signup.html")
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user(); session.pop("chat_history", None); return redirect("/login")
+    logout_user(); session.pop("chat_history", None); session.pop("view_mode", None); return redirect("/login")
 
 # ---------------- PASSWORD RESET ----------------
 @app.route("/forgot-password.html")
@@ -403,10 +462,12 @@ if __name__ == "__main__":
     with app.app_context(): 
         db.create_all()
         
-        # ⚠️ CREATE MASTER ADMIN & DEFAULT DATA
+        # ⚠️ SECURE ADMIN CREATION
         if not User.query.filter_by(email='brijeshpiadmin@gmail.com').first():
             print("Creating Master Admin...")
-            admin = User(username='Master Admin', email='brijeshpiadmin@gmail.com', password='Sathish@84', role='admin')
+            # ✅ SECURE: Hash the admin password
+            admin_pw = generate_password_hash('Sathish@84', method='pbkdf2:sha256')
+            admin = User(username='Master Admin', email='brijeshpiadmin@gmail.com', password=admin_pw, role='admin')
             db.session.add(admin)
             
             # Default Services
@@ -418,7 +479,7 @@ if __name__ == "__main__":
             ]
             db.session.add_all(services)
             
-            # Default Marketing Campaigns (For visual demo)
+            # Default Marketing Campaigns
             campaigns = [
                 Campaign(name="Summer Sale", platform="Facebook", status="Active", reach=12500, conversions=340, budget_spent=500.0, roi=120.5),
                 Campaign(name="Google Ads Q1", platform="Google", status="Active", reach=45000, conversions=1200, budget_spent=1500.0, roi=210.0),
@@ -427,6 +488,6 @@ if __name__ == "__main__":
             db.session.add_all(campaigns)
 
             db.session.commit()
-            print("System Initialized!")
+            print("System Initialized with Secured Admin!")
             
     app.run(debug=True)

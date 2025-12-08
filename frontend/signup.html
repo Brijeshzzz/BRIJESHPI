@@ -50,22 +50,8 @@
             50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -30px) rotate(15deg); }
             100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
         }
-        
-        /* New Styles for Partner Toggle */
-        .hidden { display: none; }
-        .partner-box { background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
     </style>
     <script>
-        function togglePartnerFields() {
-            var checkBox = document.getElementById("is_partner");
-            var fields = document.getElementById("partner-fields");
-            if (checkBox.checked) {
-                fields.classList.remove("hidden");
-            } else {
-                fields.classList.add("hidden");
-            }
-        }
-        
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const eyeIcon = document.getElementById(iconId);
@@ -118,30 +104,7 @@
                     </button>
                 </div>
 
-                <!-- ⭐ NEW: PARTNER SECTION (Hidden by default) ⭐ -->
-                <div class="partner-box">
-                    <label class="flex items-center cursor-pointer mb-2">
-                        <input type="checkbox" id="is_partner" name="is_partner" onchange="togglePartnerFields()" class="w-4 h-4 accent-black mr-2">
-                        <span class="text-sm font-medium text-gray-700">Register as Service Partner?</span>
-                    </label>
-
-                    <div id="partner-fields" class="hidden mt-4">
-                        <div class="input-group">
-                            <input type="text" name="company_name" class="minimal-input" placeholder=" " style="font-size: 0.9rem;">
-                            <label class="floating-label">Company Name</label>
-                        </div>
-                        
-                        <div class="input-group">
-                            <select name="service_category" class="minimal-input" style="padding-top: 0.5rem;">
-                                <option value="" disabled selected>Select Service Category</option>
-                                <option value="Plumber">Plumber</option>
-                                <option value="Electrician">Electrician</option>
-                                <option value="AC Service">AC Service</option>
-                                <option value="Painter">Painter</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                <!-- (Partner Section REMOVED - User starts as standard Client) -->
 
                 <!-- Submit Button -->
                 <button type="submit" class="btn-black w-full py-4 rounded-xl font-medium text-sm tracking-wide mt-4 mb-4">
