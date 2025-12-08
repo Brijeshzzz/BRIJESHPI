@@ -15,6 +15,14 @@ from groq import Groq
 app = Flask(__name__, static_folder="frontend", template_folder="frontend")
 app.secret_key = "change-this-secret-key"
 
+# Prevent Caching
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "-1"
+    return response
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///brijeshpi.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -25,16 +33,47 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # ---------------- MODELS ----------------
+
+class Follow(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False) # Increased length for Hash
+    password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), default="user") 
     
     # Provider Logic
     is_provider = db.Column(db.Boolean, default=False) 
     provider_profile = db.relationship('ProviderProfile', backref='user', uselist=False)
+
+    # Follow Helpers
+    def is_following(self, user):
+        return Follow.query.filter_by(follower_id=self.id, followed_id=user.id).first() is not None
+
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower_id=self.id, followed_id=user.id)
+            db.session.add(f)
+
+    def unfollow(self, user):
+        f = Follow.query.filter_by(follower_id=self.id, followed_id=user.id).first()
+        if f: db.session.delete(f)
+            
+    def get_followers_count(self):
+        return Follow.query.filter_by(followed_id=self.id).count()
+
+    def get_following_count(self):
+        return Follow.query.filter_by(follower_id=self.id).count()
+
+    # ⭐ NEW: Get List of Followers ⭐
+    def get_followers(self):
+        follows = Follow.query.filter_by(followed_id=self.id).all()
+        return [User.query.get(f.follower_id) for f in follows]
 
 class ProviderProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +99,6 @@ class Service(db.Model):
     description = db.Column(db.String(500))
     icon = db.Column(db.String(50), default="fas fa-tools")
 
-# Marketing Model
 class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -89,8 +127,7 @@ def admin_required(f):
 admin_bp = Blueprint('admin', __name__, template_folder='templates', static_folder='static', url_prefix='/admin')
 
 @admin_bp.route('/')
-def admin_redirect():
-    return redirect(url_for('admin.dashboard'))
+def admin_redirect(): return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -111,14 +148,9 @@ def requests():
     service_filter = request.args.get('service', '').strip()
     date_filter = request.args.get('date', '').strip()
     query = ServiceRequest.query.filter(ServiceRequest.status == 'New Booking')
-
-    if search_query:
-        query = query.filter((ServiceRequest.client_name.ilike(f"%{search_query}%")) | (ServiceRequest.phone.ilike(f"%{search_query}%")))
-    if service_filter:
-        query = query.filter(ServiceRequest.service_type == service_filter)
-    if date_filter:
-        query = query.filter(ServiceRequest.date == date_filter)
-
+    if search_query: query = query.filter((ServiceRequest.client_name.ilike(f"%{search_query}%")) | (ServiceRequest.phone.ilike(f"%{search_query}%")))
+    if service_filter: query = query.filter(ServiceRequest.service_type == service_filter)
+    if date_filter: query = query.filter(ServiceRequest.date == date_filter)
     requests = query.order_by(ServiceRequest.id.desc()).all()
     all_services = Service.query.all()
     return render_template('admin/requests.html', requests=requests, services=all_services)
@@ -177,8 +209,7 @@ def add_service():
     icon = request.form.get('icon')
     if name:
         new_service = Service(name=name, price_range=price, icon=icon)
-        db.session.add(new_service)
-        db.session.commit()
+        db.session.add(new_service); db.session.commit()
         flash('Service Added!', 'success')
     return redirect(url_for('admin.services'))
 
@@ -209,15 +240,13 @@ def add_campaign():
     platform = request.form.get('platform')
     if name:
         new_camp = Campaign(name=name, platform=platform, status="Active", reach=0, conversions=0)
-        db.session.add(new_camp)
-        db.session.commit()
+        db.session.add(new_camp); db.session.commit()
     return redirect(url_for('admin.marketing'))
 
 @admin_bp.route('/settings')
 @login_required
 @admin_required
-def settings(): 
-    return render_template('admin/settings.html')
+def settings(): return render_template('admin/settings.html')
 
 app.register_blueprint(admin_bp)
 
@@ -300,8 +329,6 @@ def chat():
                     db.session.commit()
                     
                     ADMIN_PHONE = "919944653073" 
-                    
-                    # ⭐ UPDATED: LONG-FORM WHATSAPP MESSAGE FORMAT ⭐
                     wa_text = f"""*New Service Request*
 -------------------------
 *Name:* {json_data.get('name')}
@@ -314,7 +341,6 @@ def chat():
                     
                     wa_url = f"https://wa.me/{ADMIN_PHONE}?text={urllib.parse.quote(wa_text)}"
                     
-                    # Clean Success Message
                     final_reply = f"""
                     <div class="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h3 class="font-bold text-green-800 mb-2">Booking Confirmed! ✅</h3>
@@ -333,7 +359,7 @@ def chat():
         else:
             final_reply = ai_reply
 
-        # Only append non-system messages to history
+        # Only append non-booking messages to history
         if "chat_history" in session and "SAVE_DB" not in ai_reply:
             history = session["chat_history"]
             history.append({"role": "assistant", "content": final_reply})
@@ -353,14 +379,50 @@ def home(): return app.send_static_file("index.html")
 @app.route("/dashboard")
 @login_required
 def user_dashboard():
-    if current_user.role == 'admin': 
-        return redirect(url_for('admin.dashboard'))
+    if current_user.role == 'admin': return redirect(url_for('admin.dashboard'))
     
     view_mode = session.get('view_mode', 'client')
-    if not current_user.is_provider:
-        view_mode = 'client'
+    if not current_user.is_provider: view_mode = 'client'
+    
+    search_query = request.args.get('q', '').strip()
+    search_results = []
+    if search_query:
+        search_results = User.query.filter(User.username.ilike(f"%{search_query}%"), User.id != current_user.id).all()
+    
+    return render_template("dashboard.html", user=current_user, view_mode=view_mode, search_results=search_results, search_query=search_query)
 
-    return render_template("dashboard.html", user=current_user, view_mode=view_mode)
+# ⭐ NEW: PUBLIC PROFILE ROUTE (Case-Insensitive Fix Applied) ⭐
+@app.route("/profile/<username>")
+@login_required
+def public_profile(username):
+    target_user = User.query.filter_by(username=username).first()
+    if not target_user: target_user = User.query.filter(User.username.ilike(username)).first()
+    if not target_user:
+        for u in User.query.all():
+            if u.username and u.username.strip().lower() == username.strip().lower():
+                target_user = u; break
+    if not target_user: return redirect(url_for("user_dashboard"))
+    followers = target_user.get_followers()
+    return render_template("public_profile.html", user=current_user, target_user=target_user, followers=followers)
+
+# --- FOLLOW ROUTES ---
+@app.route("/follow/<int:user_id>", methods=['POST'])
+@login_required
+def follow_user(user_id):
+    user_to_follow = User.query.get(user_id)
+    if user_to_follow:
+        current_user.follow(user_to_follow)
+        db.session.commit()
+    return redirect(request.referrer or url_for('user_dashboard'))
+
+@app.route("/unfollow/<int:user_id>", methods=['POST'])
+@login_required
+def unfollow_user(user_id):
+    user_to_unfollow = User.query.get(user_id)
+    if user_to_unfollow:
+        current_user.unfollow(user_to_unfollow)
+        db.session.commit()
+    return redirect(request.referrer or url_for('user_dashboard'))
 
 # --- ACCOUNT SWITCHING ROUTES ---
 @app.route("/upgrade-to-provider", methods=["POST"])
@@ -369,8 +431,7 @@ def upgrade_to_provider():
     if not current_user.is_provider:
         new_profile = ProviderProfile(user_id=current_user.id)
         current_user.is_provider = True
-        db.session.add(new_profile)
-        db.session.commit()
+        db.session.add(new_profile); db.session.commit()
         session['view_mode'] = 'provider'
         flash("You are now a Service Partner!", "success")
     return redirect(url_for('user_dashboard'))
@@ -379,8 +440,7 @@ def upgrade_to_provider():
 @login_required
 def switch_view(mode):
     if current_user.is_provider:
-        if mode in ['client', 'provider']:
-            session['view_mode'] = mode
+        if mode in ['client', 'provider']: session['view_mode'] = mode
     return redirect(url_for('user_dashboard'))
 
 # ---------------- SECURE LOGIN & SIGNUP ----------------
@@ -390,21 +450,13 @@ def login():
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "").strip()
         user = User.query.filter_by(email=email).first()
-        
-        # ✅ SECURE: Use check_password_hash
         if user and check_password_hash(user.password, password):
             login_user(user)
             if user.role == 'admin': return redirect(url_for('admin.dashboard'))
-            
-            if user.is_provider:
-                session['view_mode'] = 'provider'
-            else:
-                session['view_mode'] = 'client'
-                
+            if user.is_provider: session['view_mode'] = 'provider'
+            else: session['view_mode'] = 'client'
             return redirect(url_for('user_dashboard'))
-        else: 
-            flash("Invalid email or password", "error")
-            return redirect("/login")
+        else: flash("Invalid email or password", "error"); return redirect("/login")
     return render_template("login.html")
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -413,16 +465,10 @@ def signup():
         email = request.form.get("email")
         password = request.form.get("password")
         username = request.form.get("full_name")
-        
-        if User.query.filter_by(email=email).first(): 
-            return "Email exists!"
-        
-        # ✅ SECURE: Hash password before saving
+        if User.query.filter_by(email=email).first(): return "Email exists!"
         hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
-        
         new_user = User(username=username, email=email, password=hashed_pw, role="user", is_provider=False)
-        db.session.add(new_user)
-        db.session.commit()
+        db.session.add(new_user); db.session.commit()
         return redirect("/login")
     return app.send_static_file("signup.html")
 
@@ -461,16 +507,11 @@ def reset_password():
 if __name__ == "__main__":
     with app.app_context(): 
         db.create_all()
-        
-        # ⚠️ SECURE ADMIN CREATION
         if not User.query.filter_by(email='brijeshpiadmin@gmail.com').first():
             print("Creating Master Admin...")
-            # ✅ SECURE: Hash the admin password
             admin_pw = generate_password_hash('Sathish@84', method='pbkdf2:sha256')
             admin = User(username='Master Admin', email='brijeshpiadmin@gmail.com', password=admin_pw, role='admin')
             db.session.add(admin)
-            
-            # Default Services
             services = [
                 Service(name="Plumber", price_range="$50-200", icon="fas fa-wrench"),
                 Service(name="Electrician", price_range="$60-300", icon="fas fa-bolt"),
@@ -478,16 +519,12 @@ if __name__ == "__main__":
                 Service(name="Painter", price_range="$100+", icon="fas fa-paint-roller")
             ]
             db.session.add_all(services)
-            
-            # Default Marketing Campaigns
             campaigns = [
                 Campaign(name="Summer Sale", platform="Facebook", status="Active", reach=12500, conversions=340, budget_spent=500.0, roi=120.5),
                 Campaign(name="Google Ads Q1", platform="Google", status="Active", reach=45000, conversions=1200, budget_spent=1500.0, roi=210.0),
                 Campaign(name="Email Blast", platform="Email", status="Completed", reach=5000, conversions=150, budget_spent=50.0, roi=300.0)
             ]
             db.session.add_all(campaigns)
-
             db.session.commit()
             print("System Initialized with Secured Admin!")
-            
     app.run(debug=True)
