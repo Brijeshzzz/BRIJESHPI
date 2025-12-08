@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify, Blueprint, url_for, flash, render_template_string
+from flask import Flask, render_template, request, redirect, session, jsonify, Blueprint, url_for, flash
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -9,7 +9,6 @@ import random
 import os
 import json
 import urllib.parse
-import re  # Added for parsing budget numbers
 from groq import Groq
 
 # ---------------- CONFIGURATION ----------------
@@ -31,13 +30,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False) 
-    
-    # Roles: 'admin', 'partner' (Service Provider), 'user' (Customer)
     role = db.Column(db.String(20), default="user")
-    
-    # --- NEW FIELDS FOR PARTNERS ---
-    company_name = db.Column(db.String(100)) 
-    service_category = db.Column(db.String(50)) 
 
 class ServiceRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,9 +40,6 @@ class ServiceRequest(db.Model):
     budget = db.Column(db.String(500)) 
     status = db.Column(db.String(50), default="Pending")
     date = db.Column(db.String(50))
-    
-    # --- NEW: ASSIGN TO PARTNER ---
-    assigned_to_id = db.Column(db.Integer, nullable=True) 
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,11 +48,12 @@ class Service(db.Model):
     description = db.Column(db.String(500))
     icon = db.Column(db.String(50), default="fas fa-tools")
 
+# --- NEW: CAMPAIGN MODEL FOR MARKETING ---
 class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    platform = db.Column(db.String(50)) 
-    status = db.Column(db.String(20)) 
+    platform = db.Column(db.String(50)) # e.g., Facebook, Google, Email
+    status = db.Column(db.String(20)) # Active, Paused, Completed
     reach = db.Column(db.Integer, default=0)
     conversions = db.Column(db.Integer, default=0)
     budget_spent = db.Column(db.Float, default=0.0)
@@ -121,10 +112,7 @@ def requests():
 
     requests = query.order_by(ServiceRequest.id.desc()).all()
     all_services = Service.query.all()
-    
-    partners = User.query.filter_by(role='partner').all()
-    
-    return render_template('admin/requests.html', requests=requests, services=all_services, partners=partners)
+    return render_template('admin/requests.html', requests=requests, services=all_services)
 
 @admin_bp.route('/accept/<int:request_id>')
 @login_required
@@ -193,15 +181,20 @@ def delete_service(service_id):
     if service: db.session.delete(service); db.session.commit()
     return redirect(url_for('admin.services'))
 
-# --- MARKETING ANALYTICS ---
+# --- NEW: ADVANCED MARKETING ANALYTICS ---
 @admin_bp.route('/marketing')
 @login_required
 @admin_required
 def marketing(): 
+    # 1. Platform Growth Stats
     total_users = User.query.count()
     total_orders = ServiceRequest.query.count()
+    
+    # Simple Mock Logic for "Growth %" (In real app, compare with last month's date)
     growth_percent = 12.5 
-    revenue_estimate = total_orders * 150 
+    revenue_estimate = total_orders * 150 # Assuming avg $150 per order
+    
+    # 2. Campaigns
     campaigns = Campaign.query.all()
     
     return render_template('admin/marketing.html', 
@@ -230,90 +223,6 @@ def settings():
     return render_template('admin/settings.html')
 
 app.register_blueprint(admin_bp)
-
-# ---------------- PARTNER / CLIENT BLUEPRINT ----------------
-partner_bp = Blueprint('partner', __name__, template_folder='templates', url_prefix='/partner')
-
-@partner_bp.route('/dashboard')
-@login_required
-def dashboard():
-    if current_user.role != 'partner':
-        return redirect(url_for('login'))
-    
-    # 1. Fetch assigned jobs
-    my_jobs = ServiceRequest.query.filter_by(assigned_to_id=current_user.id).all()
-    
-    # 2. Calculate Earnings (sum of numbers in 'budget' field for Completed jobs)
-    total_earnings = 0.0
-    for job in my_jobs:
-        if job.status == 'Completed':
-            try:
-                # Extracts first number found in the budget string (e.g. "Fix pipe $150")
-                matches = re.findall(r'\d+', job.budget)
-                if matches:
-                    total_earnings += float(matches[0])
-            except:
-                pass
-
-    return render_template('client/dashboard.html', 
-                           jobs=my_jobs, 
-                           user=current_user,
-                           earnings=total_earnings)
-
-@partner_bp.route('/job/<int:request_id>')
-@login_required
-def job_details(request_id):
-    if current_user.role != 'partner': return redirect(url_for('login'))
-    
-    job = ServiceRequest.query.get_or_404(request_id)
-    if job.assigned_to_id != current_user.id:
-        flash("Unauthorized", "danger")
-        return redirect(url_for('partner.dashboard'))
-        
-    # Simple HTML template for job details (saves creating a new file)
-    html_template = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Job Details</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/style.css') }}">
-        <style>
-            body { font-family: -apple-system, sans-serif; background: #f5f5f7; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px; }
-            h1 { margin-top: 0; font-size: 24px; color: #333; }
-            .row { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .label { font-weight: 600; color: #666; font-size: 14px; display: block; margin-bottom: 4px; }
-            .value { font-size: 16px; color: #111; }
-            .back-btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #0071e3; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>Job #{{ job.id }}</h1>
-            <div class="row"><span class="label">Client Name</span><span class="value">{{ job.client_name }}</span></div>
-            <div class="row"><span class="label">Service</span><span class="value">{{ job.service_type }}</span></div>
-            <div class="row"><span class="label">Phone</span><span class="value">{{ job.phone }}</span></div>
-            <div class="row"><span class="label">Status</span><span class="value">{{ job.status }}</span></div>
-            <div class="row"><span class="label">Details/Cost</span><span class="value">{{ job.budget }}</span></div>
-            <a href="{{ url_for('partner.dashboard') }}" class="back-btn">&larr; Back</a>
-        </div>
-    </body>
-    </html>
-    """
-    return render_template_string(html_template, job=job)
-
-@partner_bp.route('/earnings')
-@login_required
-def earnings():
-    return "<h1>Earnings Page - Coming Soon</h1><a href='/partner/dashboard'>Back</a>"
-
-@partner_bp.route('/reviews')
-@login_required
-def reviews():
-    return "<h1>Reviews Page - Coming Soon</h1><a href='/partner/dashboard'>Back</a>"
-
-app.register_blueprint(partner_bp)
 
 # ---------------- EXTERNAL SERVICES ----------------
 app.config["MAIL_SERVER"] = "sandbox.smtp.mailtrap.io"
@@ -432,13 +341,7 @@ def home(): return app.send_static_file("index.html")
 @app.route("/dashboard.html")
 @login_required
 def user_dashboard():
-    # ROUTING LOGIC: Where do they go?
-    if current_user.role == 'admin':
-        return redirect(url_for('admin.dashboard'))
-    elif current_user.role == 'partner':
-        return redirect(url_for('partner.dashboard'))
-    
-    # Normal customers go here
+    if current_user.role == 'admin': return redirect(url_for('admin.dashboard'))
     return app.send_static_file("dashboard.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -446,58 +349,28 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "").strip()
-        
         user = User.query.filter_by(email=email).first()
-        
         if user and user.password == password:
             login_user(user)
-            # CHECK ROLE AND REDIRECT
-            if user.role == 'admin':
-                return redirect(url_for('admin.dashboard'))
-            elif user.role == 'partner':
-                return redirect(url_for('partner.dashboard'))
-            else:
-                return redirect("/dashboard.html")
-        else:
-            flash("Invalid email or password", "error")
-            return redirect("/login")
-            
+            if user.role == 'admin': return redirect(url_for('admin.dashboard'))
+            else: return redirect("/dashboard.html")
+        else: flash("Invalid email or password", "error"); return redirect("/login")
     return render_template("login.html")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        username = request.form.get("full_name")
-        
-        # New: Check if they want to be a Partner
-        is_partner = request.form.get("is_partner") # "on" if checked
-        company_name = request.form.get("company_name")
-        service_category = request.form.get("service_category")
-        
-        if User.query.filter_by(email=email).first(): 
-            return "Email exists!"
-            
-        if is_partner:
-            # Register as Partner
-            new_user = User(username=username, email=email, password=password, 
-                            role="partner", company_name=company_name, service_category=service_category)
-        else:
-            # Register as Normal Customer
-            new_user = User(username=username, email=email, password=password, role="user")
-            
-        db.session.add(new_user)
-        db.session.commit()
+        email = request.form.get("email"); password = request.form.get("password"); username = request.form.get("full_name")
+        if User.query.filter_by(email=email).first(): return "Email exists!"
+        new_user = User(username=username, email=email, password=password, role="user")
+        db.session.add(new_user); db.session.commit()
         return redirect("/login")
     return app.send_static_file("signup.html")
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()
-    session.pop("chat_history", None)
-    return redirect("/login")
+    logout_user(); session.pop("chat_history", None); return redirect("/login")
 
 # ---------------- PASSWORD RESET ----------------
 @app.route("/forgot-password.html")
@@ -536,11 +409,6 @@ if __name__ == "__main__":
             admin = User(username='Master Admin', email='brijeshpiadmin@gmail.com', password='Sathish@84', role='admin')
             db.session.add(admin)
             
-            # Create a DUMMY PARTNER for testing
-            partner = User(username='Rajesh Kumar', email='rajesh@plumbing.com', password='123', 
-                           role='partner', company_name='Rajesh Plumbing Co', service_category='Plumber')
-            db.session.add(partner)
-
             # Default Services
             services = [
                 Service(name="Plumber", price_range="$50-200", icon="fas fa-wrench"),
@@ -559,6 +427,6 @@ if __name__ == "__main__":
             db.session.add_all(campaigns)
 
             db.session.commit()
-            print("System Initialized with Admin, Partner & Campaigns!")
+            print("System Initialized!")
             
     app.run(debug=True)
